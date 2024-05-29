@@ -1,5 +1,5 @@
 # Airbean-API
-## Gruppuppgift
+## Gruppuppgift2
 ### För Godkänt
 * Inlämnad länk till gruppens GitHub repo med kod till en fungerande webbapplikation som uppfyller de funktionella kraven. 
 * Gruppen använder sig av Express och NeDB som databas (en annan databas exempelvis MongoDB är okej ifall alla i gruppen är överens om detta).
