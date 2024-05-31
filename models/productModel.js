@@ -7,7 +7,6 @@ const productSchema = Joi.object({
     desc : Joi.string().max(30).required(),
     price : Joi.string().max(30).required(),
     _id : Joi.string().max(30)
-
 });
 
 export default productSchema;

@@ -3,7 +3,7 @@ import {productDb as db} from '../models/productModel.js'
 export default class ProductController{
     // URL =  api/products
     //ALLA PRODUKTER
-    getProducts = async (req, res) => {
+    getAllProducts = async (req, res) => {
         const products = await db.find().sort({ id: 1 });
         res.status(200).json({
             success: true,
@@ -15,7 +15,12 @@ export default class ProductController{
     // ENSKILD PRODUKT PÅ ID
     // URL =  api/products/:productId
     getProduct = (req, res) => {
-        res.json(req.product);
+        res.status(200).json({
+            success: true,
+            message: 'Products found.',
+            status: 200,
+            product: req.product
+        });
     }
 }
 

@@ -1,63 +1,77 @@
 import nedb from 'nedb-promises';
 
 
+export const orderDb = nedb.create('config/orders.db');
+
 export default class Order {
 
-    constructor(userId, products = [], orderId) {
-        this.orderIsPlaced = false;
+    constructor(userId = '') {
         this.userId = userId;
-        this.products = products; // {_id: _id, title: title, price: 56kr, amount: 3}
-        this.createdAt = new Date().toISOString();
+
+        // let randomId = Math.random().toString(36).slice(2, 8).toUpperCase();
+
+        // orderDb.find().then((orders) => {
+
+        //     if (orders.length > 0) {
+        //         while (orders.some(order => order.orderId === randomId)) {
+        //             randomId = Math.random().toString(36).slice(2, 8).toUpperCase();
+        //         }
+        //     }
+
+        // });
+        this.orderId = '';
+        this.estimatedTime = '';
         this.orderPlacedAt = '';
-        this.orderId = orderId;
-    }
-
-    addProduct = (product) => {
-        const index = this.products.findIndex(item => item._id === product._id)
-        if (index === -1) {
-            this.products[index].amount += 1;
-            return true;
-        }
-        else {
-            this.products.unshift({ _id: product._id, title: title, price: price, amount: 1 });
-            return true;
-        }
-    }
-    
-    removeProduct = (product) => {
-        const index = this.products.findIndex(item => item._id === product._id)
-        if (index === -1) {
-            return false;
-        }
-        else {
-            if (this.products[index].amount === 1) {
-                this.products.splice(index, 1);
-            }
-            else {
-                this.products[index].amount -= 1;
-            }
-            return true;
-        }
-    }
-    
-    placeOrder = () => {
-        this.orderPlacedAt = new Date().toISOString();
-        this.orderIsPlaced = true;
-        return true;
-
-    }
-
-    getTotalAmount = () => {
-        let totalAmount = 0;
-        this.products.forEach(product => {
-            totalAmount += product.amount * product.price;
-        });
-        return totalAmount;
+        this.orderIsPlaced = false;
+        this.products = []; // {product: {produkt-objektet}, amount: 3}
+        this.totalAmount = 0;
     }
 
 }
 
 
-export const orderDb = nedb.create('config/orders.db');
+//Olika alternativ för datalagring
+//
+// const productsTestOne = [
+//     {
+//         _id: 'asdasd', //_id
+//         price: 59,
+//         title: 'kaffe', //titel på kaffet
+//         desc: 'blablala',
+//         amount: 1
+//     }
+// ]
 
+// const productsTestTwo = [
+//     {
+//         product: {
+//                     _id: 'asdasd', //_id
+//                     price: 59,
+//                     title: 'kaffe', //titel på kaffet
+//                     desc: 'blablabla',
+//                     id:1
+//         },
+//         amount: 1
+//     },
+//     {
+//         product: {
+//                     _id: 'asdasd', //_id
+//                     price: 59,
+//                     title: 'kaffe', //titel på kaffet
+//                     desc: 'blablabla',
+//                     id:1
+//         },
+//         amount: 1
+//     }
+// ]
 
+// const productsTestThree = [
+//     {
+//         productId: _id, //Man söker på productId så får man produkten
+//         amount: 1
+//     },
+//     {
+//         productId: _id,
+//         amount: 5
+//     }
+// ]

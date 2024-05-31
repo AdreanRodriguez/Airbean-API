@@ -6,7 +6,7 @@ const router = Router();
 
 const controller = new ProductController();
 
-router.get('/', controller.getProducts);
+router.get('/', controller.getAllProducts);
 
 router.get('/:productId', validateProduct, controller.getProduct);
 

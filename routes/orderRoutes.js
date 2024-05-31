@@ -1,30 +1,24 @@
 import { Router } from 'express';
 
-const router = Router()
+import { validateOrder, validateOrderStrict } from '../middleware/validateOrder.js';
+import validateProduct from '../middleware/validateProduct.js';
 
-router.post('/', (req, res) => {
-    const { error } = userSchema.validate(req.body);
+import OrderController from '../controllers/orderController.js';
 
-    if (error) {
+const router = Router();
+const controller = new OrderController();
+// URL = POST /api/orders
+router.post('/',);
 
-        const response = {
-            success: false,
-            message: error.details[0].message,
-            status: 400
-        };
-        return res.status(400).json(response);
-    } else {
-        const newOrder = createOrder(req.body)
-        return res.status(201).json({ order: newOrder });
+router.get('/:orderId', validateOrderStrict, controller.getOrder);
 
-    }
-});
+router.get('/:orderId/place', validateOrderStrict, controller.placeOrder);
 
 // Hämtar den varukorg som användaren har aktiv. 
 // Om det inte finns en aktiv varukorg så skapas en tom.
-router.get('/:orderId', (req, res) => {
+router.post('/:productId', validateOrder, validateProduct, controller.addProduct);
 
-});
-router.post('/:productId', (req, res) => {
+router.delete('/:productId', validateOrderStrict, validateProduct, controller.removeProduct);
 
-});
+
+export default router;
