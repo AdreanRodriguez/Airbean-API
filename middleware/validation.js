@@ -31,9 +31,12 @@ const validate = {
         },
 
         oneStrict: async (req, res, next) => {
-            const { orderId } = req.body;
+            let { orderId } = req.body;
             const {productId} = req.params;
-        
+
+            orderId = !orderId ? req.params.orderId : undefined;
+
+            console.log(orderId);
             if (!orderId) {
                 newError.message = 'orderId parameter is not found';
                 newError.status = 404;
@@ -60,6 +63,9 @@ const validate = {
         },
 
         history: async(req, res, next) => {
+
+        },
+        placeOrder: async(req, res, next) => {
 
         }
     },

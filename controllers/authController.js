@@ -1,18 +1,15 @@
-import { userDb as db } from '../models/userModel.js';
-import jwt from 'jsonwebtoken';
+import { userDb } from '../models/userModel.js';
 
 export default class AuthController {
     SECRET_KEY = process.env.SECRET_KEY || "a59be5d7-0753-4d62-b665-e62d62a63c5b";
 
     //URL = api/auth/register
     registerUser = async (req, res) => {
-
         const { username, password } = req.body;
 
         const users = await db.find();
 
         let randomId = Math.random().toString(36).slice(2, 7).toUpperCase();
-
         if (users.length < 1) {
             console.log(randomId);
         }
@@ -24,10 +21,11 @@ export default class AuthController {
         const newUser = {
             username: username,
             password: password,
-            userId: randomId
+            userId: randomId,
+            role: 'customer'
         }
 
-        db.insert(newUser);
+        userDb.insert(newUser);
 
         res.status(201).json({
             success: true,
@@ -59,7 +57,7 @@ export default class AuthController {
     getUser = async (req, res) => {
 
         const userId = req.params.userId;
-        const user = await db.findOne({ userId: userId });
+        const user = await userDb.findOne({ userId: userId });
 
         if (!user) return res.status(404).json({
             success: false,

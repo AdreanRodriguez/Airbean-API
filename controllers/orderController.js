@@ -1,6 +1,17 @@
 import { orderDb } from '../models/orderModel.js';
 export default class OrderController {
 
+    getOrders = async (req, res) => {
+        const data = await orderDb.find({});
+
+        res.json({
+            message: 'working',
+            data: data
+        });
+
+    }
+
+
     getOrder = (req, res) => {
         res.json({
             success: true,
@@ -10,20 +21,41 @@ export default class OrderController {
         });
     }
 
-    placeOrder = async (req, res) => {
-        const { order, product } = req;
+    placeOrder = async (req, res, next) => {
+        const { order, user } = req;
 
+        if (user) {
+            console.log('Order User ID: ' + order.userId + ", User ID: " + user.userId);
+
+            if (!order.userId || order.userId === '') {
+                order.userId = user.userId;
+            }
+
+            if (order.userId !== user.userId) {
+                return next(new Error('Wrong userId for order.'));
+            }
+        }
+        if(order.userId !== '' && !user) return next(new Error('Wrong userId for order.'));
+        if(order.orderIsPlaced) return next(new Error('Order already placed.'));
+        
         const placedOrderTime = new Date();
         order.orderPlacedAt = placedOrderTime.toLocaleString();
         order.orderIsPlaced = true;
 
         let amountOfCups = 0;
-        order.products.forEach(item => {
+        for (const item of order.products) {
             amountOfCups += item.amount;
-        })
-        order.estimatedTime = placedOrderTime.setMinutes(placedOrderTime.getMinutes() + 5 + (amountOfCups * 2)).toLocaleString();
-        await this.update(order);
+        }
+        order.estimatedTimeInMinutes = new Date();
+        console.log(amountOfCups);
+        // const estimatedTimeInMinutes = placedOrderTime.getTime() + (5 + (amountOfCups * 2)) * 60000;
+        // order.estimatedTimeInMinutes = new Date(newEstimatedTimeInMs).toLocaleString(); 
+        order.estimatedTimeInMinutes = 5 + (amountOfCups * 2);
+        // Add 15 minutes to the current time
 
+        await this.update(order);
+        // const estimatedTime = new Date(placedOrderTime.getTime() + (5 + amountOfCups * 2) * 60000); // 60000 ms = 1 minute
+        // order.estimatedTime = estimatedTime.toLocaleString();
         return res.status(200)
             .json({
                 success: true,
@@ -34,13 +66,20 @@ export default class OrderController {
     }
 
     addProduct = async (req, res) => {
-        const { order, product } = req;
-        let {amount} = req.body;
+        const { order, product, user } = req;
+        if (user) {
+            if (order.userId === '') {
+                order.userId = user.userId
+            }
+            if (order.userId !== user.userId) return next(new Error('Wrong userId for order.'));
+        }
+
+        let { amount } = req.body;
         amount = !amount || amount <= 0 ? 1 : amount;
         console.log(amount);
         const index = order.products.findIndex(item => item.product._id === product._id)
 
-        order.totalAmount += product.price;
+        order.totalAmount += product.price * amount;
 
         if (index === -1) {
             order.products.unshift({
@@ -65,11 +104,21 @@ export default class OrderController {
     };
 
     removeProduct = async (req, res) => {
-        const { order, product } = req;
+        const { order, product, user } = req;
+        if (user) {
+            if (order.userId === '') {
+                order.userId = user.userId
+            }
+            if (order.userId !== user.userId) return next(new Error('Wrong userId for order.'));
+        }
+
+
+
         let { amount } = req.body;
         amount = !amount || amount <= 0 ? 1 : amount;
 
         const index = order.products.findIndex(item => item.product._id === product._id)
+        order.totalAmount -= product.price * amount;
 
         if (order.products[index].amount <= amount) {
             order.products.splice(index, 1);
@@ -78,7 +127,6 @@ export default class OrderController {
             order.products[index].amount -= amount;
         }
         await this.update(order);
-
         return res.status(200)
             .json({
                 success: true,
@@ -100,8 +148,13 @@ export default class OrderController {
                     { _id: orderExists._id },
                     {
                         $set: {
+                            userId: order.userId,
                             products: order.products,
-                            totalAmount: order.totalAmount
+                            totalAmount: order.totalAmount,
+                            orderPlacedAt: order.orderPlacedAt,
+                            estimatedTimeInMinutes: order.estimatedTimeInMinutes,
+                            orderIsPlaced: order.orderIsPlaced
+
                         }
                     }
                 );
@@ -149,7 +202,7 @@ export default class OrderController {
         //         await orderDb.insert(order);
         //     }
         // }
-        
+
 
 
     }
