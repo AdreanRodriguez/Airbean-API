@@ -37,22 +37,22 @@ export default class AuthController {
     };
     //URL = api/auth/login
     loginUser = async (req, res) => {
-        const { username, password } = req.body;
+        //DETTA GÖRS NU I MIDDÖLEWARE
+        // const { username, password } = req.body;
 
-        const user = await db.findOne({ username: username, password: password });
-        if (!user) return res.status(401).json({
-            success: false,
-            message: 'Wrong username or password',
-            status: 401,
-        });
+        // const user = await db.findOne({ username: username, password: password });
+        // if (!user) return res.status(401).json({
+        //     success: false,
+        //     message: 'Wrong username or password',
+        //     status: 401,
+        // });
 
-        const token = jwt.sign(user, this.SECRET_KEY);
-
+        // const token = jwt.sign(user, this.SECRET_KEY);
         return res.status(202).json({
             success: true,
             message: 'Logged in successfully!',
             status: 202,
-            token: token
+            token: req.token
         })
     }
     //URL = api/auth/users/:userId

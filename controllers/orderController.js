@@ -1,4 +1,4 @@
-import { orderDb as db } from '../models/orderModel.js';
+import { orderDb } from '../models/orderModel.js';
 export default class OrderController {
 
     getOrder = (req, res) => {
@@ -35,16 +35,21 @@ export default class OrderController {
 
     addProduct = async (req, res) => {
         const { order, product } = req;
-
+        let {amount} = req.body;
+        amount = !amount || amount <= 0 ? 1 : amount;
+        console.log(amount);
         const index = order.products.findIndex(item => item.product._id === product._id)
+
+        order.totalAmount += product.price;
+
         if (index === -1) {
             order.products.unshift({
                 product: product,
-                amount: 1
+                amount: amount
             });
         }
         else {
-            order.products[index].amount += 1;
+            order.products[index].amount += amount;
         }
         await this.update(order);
 
@@ -61,17 +66,16 @@ export default class OrderController {
 
     removeProduct = async (req, res) => {
         const { order, product } = req;
+        let { amount } = req.body;
+        amount = !amount || amount <= 0 ? 1 : amount;
 
-        const index = order.products.findIndex(item => item._id === product._id)
-        if (index === -1) {
-            return false;
-        }
+        const index = order.products.findIndex(item => item.product._id === product._id)
 
-        if (order.products[index].amount === 1) {
+        if (order.products[index].amount <= amount) {
             order.products.splice(index, 1);
         }
         else {
-            order.products[index].amount -= 1;
+            order.products[index].amount -= amount;
         }
         await this.update(order);
 
@@ -88,19 +92,14 @@ export default class OrderController {
 
     async update(order) {
         try {
-            const orderExists = await db.findOne({ orderId: order.orderId }); // Ändra till findOne istället för find, annars krashar de.
+            const orderExists = await orderDb.findOne({ orderId: order.orderId }); // Ändra till findOne istället för find, annars krashar de.
             if (orderExists && orderExists !== null) {
                 console.log(`HÄR ÄR ORDEREXIS`, orderExists);
                 console.log('INNE I UPPDATERING');
-                await db.update(
+                await orderDb.update(
                     { _id: orderExists._id },
                     {
                         $set: {
-                            userId: order.userId,
-                            orderId: order.orderId,
-                            estimatedTime: order.estimatedTime,
-                            orderPlacedAt: order.orderPlacedAt,
-                            orderIsPlaced: order.orderIsPlaced,
                             products: order.products,
                             totalAmount: order.totalAmount
                         }
@@ -110,16 +109,17 @@ export default class OrderController {
                 console.log('UTANFÖR UPPDATERING');
 
                 // Generera ett unikt order-ID här istället
-                let randomId = Math.random().toString(36).slice(2, 8).toUpperCase();
-                const orders = await db.find();
+                //Jag la till detta igen i klassen för Order, då det gör detta kodstycket lite mindre och tydligare att läsa :) 
+                // let randomId = Math.random().toString(36).slice(2, 8).toUpperCase();
+                // const orders = await orderDb.find();
 
-                if (orders.length > 0) {
-                    while (orders.some(ord => ord.orderId === randomId)) {
-                        randomId = Math.random().toString(36).slice(2, 8).toUpperCase();
-                    }
-                }
-                order.orderId = randomId;
-                await db.insert(order);
+                // if (orders.length > 0) {
+                //     while (orders.some(ord => ord.orderId === randomId)) {
+                //         randomId = Math.random().toString(36).slice(2, 8).toUpperCase();
+                //     }
+                // }
+                // order.orderId = randomId;
+                await orderDb.insert(order);
                 console.log(`LÄGGER IN ORDERN I DB`, order)
             }
         } catch (error) {
@@ -127,11 +127,11 @@ export default class OrderController {
         }
 
         // async update(order) {
-        //     const orderExists = await db.find({ orderId: order.orderId });
+        //     const orderExists = await orderDb.find({ orderId: order.orderId });
         //     console.log(order);
         //     console.log(orderExists);
         //     if (orderExists.length > 0) {
-        //         await db.update(
+        //         await orderDb.update(
         //             { orderId: order.orderId },
         //             {
         //                 $set: {
@@ -146,7 +146,7 @@ export default class OrderController {
         //             });
         //     }
         //     else {
-        //         await db.insert(order);
+        //         await orderDb.insert(order);
         //     }
         // }
         

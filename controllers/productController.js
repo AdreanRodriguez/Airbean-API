@@ -4,6 +4,7 @@ export default class ProductController {
     // URL =  api/products
     //ALLA PRODUKTER
     getAllProducts = async (req, res, next) => {
+        
         try {
             const products = await db.find().sort({ id: 1 });
 
@@ -29,33 +30,14 @@ export default class ProductController {
     // ENSKILD PRODUKT PÅ ID
     // URL =  api/products/:productId
     getProduct = async (req, res) => {
-        const productId = req.params.productId;
-
-        try {
-            const product = await db.findOne({ _id: productId });
-
-            if (!product) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Product not found.',
-                    status: 404
-                });
-            }
-
-            res.status(200).json({
-                success: true,
-                message: 'Product found.',
-                status: 200,
-                product: product
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                message: 'An error occurred while retrieving the product.',
-                status: 500,
-                error: error.message
-            });
-        }
+        const {product} = req;
+        res.status(200).json({
+            success: true,
+            message: 'Product found.',
+            status: 200,
+            product: product
+        });
+        
     }
 }
 

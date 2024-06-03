@@ -15,18 +15,18 @@ export default class Order {
     constructor(userId = '') {
         this.userId = userId;
 
-        // let randomId = Math.random().toString(36).slice(2, 8).toUpperCase();
+        let randomId = Math.random().toString(36).slice(2, 8).toUpperCase();
 
-        // orderDb.find().then((orders) => {
+        orderDb.find().then((orders) => {
 
-        //     if (orders.length > 0) {
-        //         while (orders.some(order => order.orderId === randomId)) {
-        //             randomId = Math.random().toString(36).slice(2, 8).toUpperCase();
-        //         }
-        //     }
+            if (orders.length > 0) {
+                while (orders.some(order => order.orderId === randomId)) {
+                    randomId = Math.random().toString(36).slice(2, 8).toUpperCase();
+                }
+            }
 
-        // });
-        this.orderId = '';
+        });
+        this.orderId = randomId;
         this.estimatedTime = '';
         this.orderPlacedAt = '';
         this.orderIsPlaced = false;
