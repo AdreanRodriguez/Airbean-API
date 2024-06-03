@@ -5,6 +5,7 @@ const userSchema = Joi.object({
     username : Joi.string().min(4).max(10).alphanum().required(),
     password : Joi.string().min(4).max(30).pattern(/^[a-zåäöA-ZÅÄÖ0-9 ]+$/).required(),
     validatePassword : Joi.string().min(4).max(30).pattern(/^[a-zåäöA-ZÅÄÖ0-9 ]+$/).required(),
+    role : Joi.string().required(),
 });
 
 export default userSchema;

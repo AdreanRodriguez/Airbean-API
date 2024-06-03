@@ -1,12 +1,14 @@
-import {productDb as db} from '../models/productModel.js';
 import { Router } from 'express';
+import validateMiddleware from '../middleware/validation.js';
+import ProductController from './../controllers/productController.js';
 
 const router = Router();
 
-router.get('/', async (req, res) => {
-    const products = await db.find({}).sort({ id: 1 });
-    res.json(products);
-});
+const controller = new ProductController();
+
+router.get('/',validateMiddleware.products.many, controller.getAllProducts);
+
+router.get('/:productId', validateMiddleware.products.one, controller.getProduct);
 
 export default router;
-    
+
