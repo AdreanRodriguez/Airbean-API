@@ -33,19 +33,10 @@ export default class AuthController {
             status: 201
         });
     };
+
     //URL = api/auth/login
     loginUser = async (req, res) => {
-        //DETTA GÖRS NU I MIDDÖLEWARE
-        // const { username, password } = req.body;
 
-        // const user = await db.findOne({ username: username, password: password });
-        // if (!user) return res.status(401).json({
-        //     success: false,
-        //     message: 'Wrong username or password',
-        //     status: 401,
-        // });
-
-        // const token = jwt.sign(user, this.SECRET_KEY);
         return res.status(202).json({
             success: true,
             message: 'Logged in successfully!',
@@ -53,6 +44,7 @@ export default class AuthController {
             token: req.token
         })
     }
+    
     //URL = api/auth/users/:userId
     getUser = async (req, res) => {
 

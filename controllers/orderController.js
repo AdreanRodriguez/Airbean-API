@@ -25,7 +25,6 @@ export default class OrderController {
         const { order, user } = req;
 
         if (user) {
-            console.log('Order User ID: ' + order.userId + ", User ID: " + user.userId);
 
             if (!order.userId || order.userId === '') {
                 order.userId = user.userId;
@@ -35,27 +34,24 @@ export default class OrderController {
                 return next(new Error('Wrong userId for order.'));
             }
         }
-        if(order.userId !== '' && !user) return next(new Error('Wrong userId for order.'));
-        if(order.orderIsPlaced) return next(new Error('Order already placed.'));
-        
+        if (order.userId !== '' && !user) return next(new Error('Wrong userId for order.'));
+        if (order.orderIsPlaced) return next(new Error('Order already placed.'));
+
         const placedOrderTime = new Date();
         order.orderPlacedAt = placedOrderTime.toLocaleString();
         order.orderIsPlaced = true;
 
         let amountOfCups = 0;
+
         for (const item of order.products) {
             amountOfCups += item.amount;
         }
         order.estimatedTimeInMinutes = new Date();
-        console.log(amountOfCups);
-        // const estimatedTimeInMinutes = placedOrderTime.getTime() + (5 + (amountOfCups * 2)) * 60000;
-        // order.estimatedTimeInMinutes = new Date(newEstimatedTimeInMs).toLocaleString(); 
-        order.estimatedTimeInMinutes = 5 + (amountOfCups * 2);
-        // Add 15 minutes to the current time
+
+        order.estimatedTimeInMinutes = 5 + (amountOfCups * .3);
 
         await this.update(order);
-        // const estimatedTime = new Date(placedOrderTime.getTime() + (5 + amountOfCups * 2) * 60000); // 60000 ms = 1 minute
-        // order.estimatedTime = estimatedTime.toLocaleString();
+
         return res.status(200)
             .json({
                 success: true,
@@ -76,7 +72,6 @@ export default class OrderController {
 
         let { amount } = req.body;
         amount = !amount || amount <= 0 ? 1 : amount;
-        console.log(amount);
         const index = order.products.findIndex(item => item.product._id === product._id)
 
         order.totalAmount += product.price * amount;
@@ -138,12 +133,43 @@ export default class OrderController {
 
     };
 
+    getEstimatedTimeLeft = async (req, res) => {
+        const { order } = req;
+        const now = new Date();
+        const orderPlacedAt = new Date(order.orderPlacedAt);
+        const elapsedTime = (now - orderPlacedAt);
+        console.log(elapsedTime);
+        let remainingTime = (order.estimatedTimeInMinutes*60000) - elapsedTime; // Återstående tid i millisekunder
+
+        // Om återstående tid är negativ, sätt den till noll
+        if (remainingTime < 0) {
+            remainingTime = 0;
+            return res.json({
+                success: true,
+                message: 'Kaffet ska ha levererats nu, enligt vårt supersäkra system!',
+                status: 200,
+            });
+        }
+
+        // Omvandla återstående tid till minuter och sekunder
+        const minutes = Math.floor(remainingTime / (1000 * 60));
+        const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+    
+        res.json({ 
+            success: true,
+            message: `Uppskattad återstående tid: ${minutes} minuter och ${seconds} sekunder`,
+            time: {
+                minutes: minutes,
+                seconds: seconds
+            },
+            status: 200,
+        });
+    }
+
     async update(order) {
         try {
-            const orderExists = await orderDb.findOne({ orderId: order.orderId }); // Ändra till findOne istället för find, annars krashar de.
+            const orderExists = await orderDb.findOne({ orderId: order.orderId });
             if (orderExists && orderExists !== null) {
-                console.log(`HÄR ÄR ORDEREXIS`, orderExists);
-                console.log('INNE I UPPDATERING');
                 await orderDb.update(
                     { _id: orderExists._id },
                     {
@@ -159,65 +185,11 @@ export default class OrderController {
                     }
                 );
             } else {
-                console.log('UTANFÖR UPPDATERING');
-
-                // Generera ett unikt order-ID här istället
-                //Jag la till detta igen i klassen för Order, då det gör detta kodstycket lite mindre och tydligare att läsa :) 
-                // let randomId = Math.random().toString(36).slice(2, 8).toUpperCase();
-                // const orders = await orderDb.find();
-
-                // if (orders.length > 0) {
-                //     while (orders.some(ord => ord.orderId === randomId)) {
-                //         randomId = Math.random().toString(36).slice(2, 8).toUpperCase();
-                //     }
-                // }
-                // order.orderId = randomId;
                 await orderDb.insert(order);
-                console.log(`LÄGGER IN ORDERN I DB`, order)
             }
         } catch (error) {
             console.error('Error updating order:', error);
         }
-
-        // async update(order) {
-        //     const orderExists = await orderDb.find({ orderId: order.orderId });
-        //     console.log(order);
-        //     console.log(orderExists);
-        //     if (orderExists.length > 0) {
-        //         await orderDb.update(
-        //             { orderId: order.orderId },
-        //             {
-        //                 $set: {
-        //                     userId: order.userId,
-        //                     orderId: order.orderId,
-        //                     estimatedTime: order.estimatedTime,
-        //                     orderPlacedAt: order.orderPlacedAt,
-        //                     orderIsPlaced: order.orderIsPlaced,
-        //                     products: order.products, // {product: {produkt-objektet}, amount: 3}
-        //                     totalAmount: order.totalAmount
-        //                 }
-        //             });
-        //     }
-        //     else {
-        //         await orderDb.insert(order);
-        //     }
-        // }
-
-
-
     }
-
-
 }
-
-
-
-// getTotalAmount() {
-//     let totalAmount = 0;
-//     this.products.forEach(product => {
-//         totalAmount += product.amount * product.price;
-//     });
-//     return totalAmount;
-// }
-
 

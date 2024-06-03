@@ -67,7 +67,20 @@ const validate = {
         },
         placeOrder: async(req, res, next) => {
 
+        },
+        userIdInsideOrder: (req, res, next) => {
+            const {order, user} = req;
+            if(order.userId !== ''){
+                if(order.userId !== user.userId){
+                    newError.message = 'Unauthorized access.';
+                    newError.status = 400;
+                    return next(newError);
+                }
+            }
+            next();
+            
         }
+
     },
 
     products: {
@@ -110,7 +123,6 @@ const validate = {
     users: {
         register : async (req, res, next) => {
             const { error } = userSchema.validate(req.body);
-            const newError = new Error();
             
             if (error) {
                 newError.message = error.details[0].message;
@@ -156,7 +168,8 @@ const validate = {
         },
         getAll: async (req,res,next) => {
             //Kolla om man är admin eller inte.
-        }
+        },
+        
 
     }
 

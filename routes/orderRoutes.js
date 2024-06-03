@@ -14,6 +14,7 @@ router.get('/:orderId', validateMiddleware.orders.one, controller.getOrder);
 
 router.get('/:orderId/place', validateMiddleware.orders.oneStrict, authMiddleware.checkUser, controller.placeOrder);
 
+router.get('/:orderId/estimatedTimeLeft', validateMiddleware.orders.oneStrict, authMiddleware.checkUser, validateMiddleware.orders.userIdInsideOrder, controller.getEstimatedTimeLeft)
 // Hämtar den varukorg som användaren har aktiv. 
 // Om det inte finns en aktiv varukorg så skapas en tom.
 router.post('/:productId', validateMiddleware.orders.one, authMiddleware.checkUser, validateMiddleware.products.one, controller.addProduct);
