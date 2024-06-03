@@ -4,6 +4,7 @@ import userSchema, {userDb} from '../models/userModel.js';
 export const validateRegistration = async (req, res, next) => {
     const { error } = userSchema.validate(req.body);
     const newError = new Error();
+    
     if (error) {
         newError.message = error.details[0].message;
         newError.status = 400;

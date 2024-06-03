@@ -1,8 +1,15 @@
+// import nedb from 'nedb-promises';
+
+
+// export const orderDb = nedb.create('config/orders.db');
+
+// Behöver importera rätt, inte som ovan!
 import nedb from 'nedb-promises';
 
-
-export const orderDb = nedb.create('config/orders.db');
-
+export const orderDb = nedb.create({
+    filename: 'config/orders.db',
+    autoload: true
+});
 export default class Order {
 
     constructor(userId = '') {

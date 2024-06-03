@@ -20,7 +20,6 @@ export const validateOrderStrict = async (req, res, next) => {
     }
     req.order = order;
     next();
-
 }
 
 export const validateOrder = async (req, res, next) => {

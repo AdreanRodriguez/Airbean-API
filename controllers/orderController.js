@@ -31,8 +31,6 @@ export default class OrderController {
                 status: 200,
                 order: req.order
             });
-
-
     }
 
     addProduct = async (req, res) => {
@@ -90,9 +88,9 @@ export default class OrderController {
 
     async update(order) {
         try {
-            const orderExists = await db.find({ orderId: order.orderId });
-            console.log(`HÄR ÄR ORDEREXIS`, orderExists);
+            const orderExists = await db.findOne({ orderId: order.orderId }); // Ändra till findOne istället för find, annars krashar de.
             if (orderExists && orderExists !== null) {
+                console.log(`HÄR ÄR ORDEREXIS`, orderExists);
                 console.log('INNE I UPPDATERING');
                 await db.update(
                     { _id: orderExists._id },
@@ -120,9 +118,9 @@ export default class OrderController {
                         randomId = Math.random().toString(36).slice(2, 8).toUpperCase();
                     }
                 }
-
                 order.orderId = randomId;
                 await db.insert(order);
+                console.log(`LÄGGER IN ORDERN I DB`, order)
             }
         } catch (error) {
             console.error('Error updating order:', error);
@@ -151,12 +149,13 @@ export default class OrderController {
         //         await db.insert(order);
         //     }
         // }
+        
+
+
     }
 
 
-
 }
-
 
 
 
@@ -167,4 +166,5 @@ export default class OrderController {
 //     });
 //     return totalAmount;
 // }
+
 
