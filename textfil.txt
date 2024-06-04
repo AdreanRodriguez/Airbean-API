@@ -1,13 +1,15 @@
 Order-API Dokumentation
-Detta dokument ger detaljerad information om API-endpunkterna relaterade till orderhantering, deras syften och de nödvändiga mellanprogram (middlewares) för att hantera förfrågningar.
+Detta dokument ger detaljerad information om API-endpunkterna relaterade till orderhantering,
+ deras syften och de nödvändiga mellanprogram (middlewares) för att hantera förfrågningar.
 
-Endpunkter
+Endpoints
 1. Hämta All Orderhistorik
 URL: GET /api/orders
 
 Headers: { authorization }
 
 Beskrivning: Hämtar den kompletta orderhistoriken. Endast tillgänglig för administratörer.
+
 
 Middlewares:
 
@@ -116,3 +118,32 @@ controller.removeProduct: Tar bort en produkt från användarens order.
 Anmärkningar
 Alla endpunkter kräver en authorization header för autentisering.
 Begärans body för att lägga till och ta bort produkter bör inkludera orderId och eventuellt amount.
+
+
+
+
+
+Hämta All Orderhistorik
+URL: GET /api/orders
+Beskrivning: Hämtar all orderhistorik för administratörer.
+Hämta Orderhistorik för Användare
+URL: GET /api/orders/history
+Beskrivning: Hämtar orderhistorik för den autentiserade användaren.
+Hämta Specifik Order
+URL: GET /api/orders/:orderId
+Beskrivning: Hämtar detaljer för en specifik order.
+Lägg Order
+URL: GET /api/orders/:orderId/place
+Beskrivning: Placerar en order för en specifik order-ID.
+Beräkna Tid Kvar för Order
+URL: GET /api/orders/:orderId/estimatedTimeLeft
+Beskrivning: Hämtar beräknad återstående tid för en order.
+Lägg till Produkt i Order
+URL: POST /api/orders/:productId
+Beskrivning: Lägger till en produkt i användarens aktiva order.
+Ta Bort Produkt från Order
+URL: DELETE /api/orders/:productId
+Beskrivning: Tar bort en produkt från användarens order.
+Anmärkningar
+Alla förfrågningar kräver en authorization header för autentisering.
+För att lägga till eller ta bort produkter, inkludera orderId och valfri amount i förfrågningsbodyn.
