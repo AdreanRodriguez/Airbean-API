@@ -23,7 +23,7 @@ export default class ProductController {
         } catch (error) {
             const newError = new Error('An error occurred while retrieving products');
             newError.status = 500;
-            newError.details = error.message;
+            newError.details = newError.message;
             return next(newError);
         }
     }

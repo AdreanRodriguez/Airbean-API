@@ -22,7 +22,7 @@ export default class Order {
 
         });
         this.orderId = randomId;
-        this.estimatedTimeInMinutes = '';
+        this.estimatedTimeInMinutes = 0;
         this.orderPlacedAt = '';
         this.orderIsPlaced = false;
         this.products = []; // {product: {produkt-objektet}, amount: 3}

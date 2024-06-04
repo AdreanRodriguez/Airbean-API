@@ -22,7 +22,7 @@ export default class AuthController {
             username: username,
             password: password,
             userId: randomId,
-            role: 'customer'
+            isAdmin: false
         }
 
         userDb.insert(newUser);

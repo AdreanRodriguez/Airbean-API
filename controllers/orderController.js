@@ -1,18 +1,8 @@
 import { orderDb } from '../models/orderModel.js';
 export default class OrderController {
 
-    getOrders = async (req, res) => {
-        const data = await orderDb.find({});
 
-        res.json({
-            message: 'working',
-            data: data
-        });
-
-    }
-
-
-    getOrder = (req, res) => {
+    getOrderById = (req, res) => {
         res.json({
             success: true,
             message: 'Order found.',
@@ -37,18 +27,16 @@ export default class OrderController {
         if (order.userId !== '' && !user) return next(new Error('Wrong userId for order.'));
         if (order.orderIsPlaced) return next(new Error('Order already placed.'));
 
-        const placedOrderTime = new Date();
-        order.orderPlacedAt = placedOrderTime.toLocaleString();
+        order.orderPlacedAt = new Date();
         order.orderIsPlaced = true;
 
-        let amountOfCups = 0;
-
+        let combinedEstimatedTimeInMinutes = 0;
         for (const item of order.products) {
-            amountOfCups += item.amount;
+            combinedEstimatedTimeInMinutes += item.product.estimatedTimeInMinutes * item.amount;
         }
-        order.estimatedTimeInMinutes = new Date();
 
-        order.estimatedTimeInMinutes = 5 + (amountOfCups * .3);
+        combinedEstimatedTimeInMinutes = combinedEstimatedTimeInMinutes
+        order.estimatedTimeInMinutes = Math.min(10 + (combinedEstimatedTimeInMinutes), 30);
 
         await this.update(order);
 
@@ -63,6 +51,7 @@ export default class OrderController {
 
     addProduct = async (req, res) => {
         const { order, product, user } = req;
+        console.log(Math.min(10 + (product.estimatedTimeInMinutes), 30));
         if (user) {
             if (order.userId === '') {
                 order.userId = user.userId
@@ -138,7 +127,6 @@ export default class OrderController {
         const now = new Date();
         const orderPlacedAt = new Date(order.orderPlacedAt);
         const elapsedTime = (now - orderPlacedAt);
-        console.log(elapsedTime);
         let remainingTime = (order.estimatedTimeInMinutes*60000) - elapsedTime; // Återstående tid i millisekunder
 
         // Om återstående tid är negativ, sätt den till noll
@@ -164,7 +152,26 @@ export default class OrderController {
             },
             status: 200,
         });
-    }
+    };
+
+    getHistoryByUserId = async (req, res) => {
+        res.json({
+            success: true,
+            message: 'Orders found.',
+            status: 200,
+            orders: req.orders
+        })
+    };
+
+    getAllHistory = async (req, res) => {
+        res.json({
+            success: true,
+            message: 'Orders found.',
+            status: 200,
+            orders: req.orders
+        })
+    };
+    
 
     async update(order) {
         try {

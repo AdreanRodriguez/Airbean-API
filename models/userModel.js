@@ -5,8 +5,11 @@ const userSchema = Joi.object({
     username : Joi.string().min(4).max(10).alphanum().required(),
     password : Joi.string().min(4).max(30).pattern(/^[a-zåäöA-ZÅÄÖ0-9 ]+$/).required(),
     validatePassword : Joi.string().min(4).max(30).pattern(/^[a-zåäöA-ZÅÄÖ0-9 ]+$/).required(),
-    role : Joi.string().required(),
+    isAdmin : Joi.boolean().default(false).required(),
 });
 
 export default userSchema;
-export const userDb = nedb.create('config/users.db');
+export const userDb = nedb.create({
+    filename: 'config/users.db',
+    autoload: true
+});
