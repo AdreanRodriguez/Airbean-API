@@ -9,7 +9,7 @@ Headers: { authorization }
 
 Beskrivning: Hämtar den kompletta orderhistoriken. Endast tillgänglig för administratörer.
 
-Mellanprogram:
+Middlewares:
 
 authMiddleware.checkUserStrict: Säkerställer att användaren är autentiserad.
 validateMiddleware.users.isAdmin: Validerar att användaren är administratör.
@@ -22,7 +22,7 @@ Headers: { authorization }
 
 Beskrivning: Hämtar orderhistorik för den autentiserade användaren.
 
-Mellanprogram:
+Middlewares:
 
 authMiddleware.checkUserStrict: Säkerställer att användaren är autentiserad.
 validateMiddleware.orders.history: Validerar parametrar för orderhistorikförfrågningar.
@@ -34,7 +34,7 @@ Headers: { authorization }
 
 Beskrivning: Hämtar detaljer om en specifik order efter dess ID.
 
-Mellanprogram:
+Middlewares:
 
 validateMiddleware.orders.one: Validerar order-ID-parametern.
 controller.getOrderById: Hanterar förfrågan och hämtar orderdetaljerna.
@@ -46,7 +46,7 @@ Headers: { authorization }
 Beskrivning: Lägger en order för det angivna order-ID
 .
 
-Mellanprogram:
+Middlewares:
 
 validateMiddleware.orders.oneStrict: Strikt validering av order-ID.
 authMiddleware.checkUser: Säkerställer att användaren är autentiserad.
@@ -58,7 +58,7 @@ Headers: { authorization }
 
 Beskrivning: Hämtar den beräknade tiden kvar för att slutföra en specifik order.
 
-Mellanprogram:
+Middlewares:
 
 validateMiddleware.orders.oneStrict: Strikt validering av order-ID.
 authMiddleware.checkUser: Säkerställer att användaren är autentiserad.
@@ -73,7 +73,7 @@ Body: { orderId, amount? }
 
 Beskrivning: Lägger till en produkt i användarens aktiva order. Om ingen aktiv order finns skapas en ny tom order.
 
-Mellanprogram:
+Middlewares:
 
 authMiddleware.checkUser: Säkerställer att användaren är autentiserad.
 validateMiddleware.orders.one: Validerar order-ID-parametern.
@@ -88,13 +88,14 @@ Body: { orderId, amount? }
 
 Beskrivning: Tar bort en produkt från användarens order.
 
-Mellanprogram:
+Middlewares:
 
 validateMiddleware.orders.oneStrict: Strikt validering av order-ID.
 authMiddleware.checkUser: Säkerställer att användaren är autentiserad.
 validateMiddleware.products.one: Validerar produkt-ID-parametern.
 controller.removeProduct: Hanterar förfrågan och tar bort produkten från ordern.
-Mellanprogram
+
+Middlewares
 authMiddleware.checkUserStrict: Verifierar användarens autentiseringsstatus strikt.
 validateMiddleware.users.isAdmin: Kontrollerar om användaren har administratörsrättigheter.
 validateMiddleware.orders.many: Validerar flera orderrelaterade parametrar.
@@ -103,6 +104,7 @@ validateMiddleware.orders.one: Validerar ett enskilt order-ID.
 validateMiddleware.orders.oneStrict: Strikt validering för ett enskilt order-ID.
 validateMiddleware.orders.userIdInsideOrder: Säkerställer att användaren är associerad med ordern.
 validateMiddleware.products.one: Validerar ett enskilt produkt-ID.
+
 Kontrollers
 controller.getAllHistory: Hämtar all orderhistorik.
 controller.getHistoryByUserId: Hämtar orderhistorik för den autentiserade användaren.
