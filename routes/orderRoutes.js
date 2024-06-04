@@ -3,42 +3,37 @@ import { Router } from 'express';
 import validateMiddleware from '../middleware/validation.js';
 import authMiddleware from '../middleware/authentication.js';
 import OrderController from '../controllers/orderController.js';
-import authentication from '../middleware/authentication.js';
 
 const router = Router();
 const controller = new OrderController();
 
-// URL = POST /api/orders
+// URL = POST /api/orders, header: {authorization}
 router.get('/',
+    authMiddleware.checkUserStrict,
     validateMiddleware.users.isAdmin,
     validateMiddleware.orders.many,
     controller.getAllHistory);
 
 //Hämta historik för specifik användare
+// URL = GET /api/orders/history, header: {authorization}
 router.get('/history',
-    authentication.verifyToken,
-    validateMiddleware.orders.many,
+    authMiddleware.checkUserStrict,
+    validateMiddleware.orders.history,
     controller.getHistoryByUserId);
 
 
-router.get('/admin/history',
-    authentication.verifyToken,
-    validateMiddleware.users.isAdmin,
-    validateMiddleware.orders.many,
-    controller.getHistoryByUserId);
-
-
+// URL = GET /api/orders/history, header: {authorization}
 router.get('/:orderId',
     validateMiddleware.orders.one,
     controller.getOrderById);
 
-
+// URL = GET /api/orders/:orderId/place, header: {authorization}
 router.get('/:orderId/place',
     validateMiddleware.orders.oneStrict,
     authMiddleware.checkUser,
     controller.placeOrder);
 
-
+// URL = GET /api/orders/:orderId/estimatedTimeLeft, header: {authorization}
 router.get('/:orderId/estimatedTimeLeft',
     validateMiddleware.orders.oneStrict,
     authMiddleware.checkUser,
@@ -47,13 +42,15 @@ router.get('/:orderId/estimatedTimeLeft',
 
 // Hämtar den varukorg som användaren har aktiv. 
 // Om det inte finns en aktiv varukorg så skapas en tom.
+// URL = POST /api/orders/:productId, body: {orderId, amount?}, header: {authorization}
 router.post('/:productId',
-    validateMiddleware.orders.one,
     authMiddleware.checkUser,
+    validateMiddleware.orders.one,
     validateMiddleware.products.one,
     controller.addProduct);
 
 
+// URL = DELETE /api/orders/:productId, body: {orderId, amount?}, header: {authorization}
 router.delete('/:productId',
     validateMiddleware.orders.oneStrict,
     authMiddleware.checkUser,

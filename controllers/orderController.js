@@ -51,7 +51,7 @@ export default class OrderController {
 
     addProduct = async (req, res) => {
         const { order, product, user } = req;
-        console.log(Math.min(10 + (product.estimatedTimeInMinutes), 30));
+        console.log(order)
         if (user) {
             if (order.userId === '') {
                 order.userId = user.userId
@@ -79,7 +79,7 @@ export default class OrderController {
         return res.status(200)
             .json({
                 success: true,
-                message: 'product successfully added to order. Dont forget to add "orderId" inside body.',
+                message: 'Product successfully added to order. Dont forget to add "orderId" inside body if this is a guest.',
                 status: 200,
                 order: order,
                 addedProduct: product

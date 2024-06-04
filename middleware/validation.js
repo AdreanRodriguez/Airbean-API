@@ -13,19 +13,54 @@ const validate = {
         //Kollar orderId som passeras in i bodyn. Om inte den finns, skapa ny order     
         one: async (req, res, next) => {
             const { orderId } = req.body;
+            const { user } = req;
 
+            console.log(`INNE I ONE ${orderId}`);
             let orderToReturn = null;
+
             if (!orderId) {
-                orderToReturn = new Order();
-            } else {
-                orderToReturn = await orderDb.findOne({ orderId: orderId, orderIsPlaced: false });
-                if (!orderToReturn) {
-                    error.message = 'Order is either not found or already placed';
-                    error.status = 404;
-                    return next(error);
+                // Om ingen orderId, försök hitta en existerande icke-placerad order för användaren
+                if (user) {
+                    orderToReturn = await orderDb.findOne({ userId: user.userId, orderIsPlaced: false });
+                    if (!orderToReturn) {
+                        orderToReturn = new Order(user.userId);
+                        await orderToReturn.init();
+
+
+                    }
+                } else {
+                    orderToReturn = new Order();
+                    await orderToReturn.init();
                 }
+
+            }
+            else {
+                orderToReturn = await orderDb.findOne({ orderId: orderId, orderIsPlaced: false });
             }
 
+            // if (!orderId) {
+            //     orderToReturn = new Order();
+            // } else {
+
+            //     if(req.user){
+            //         orderToReturn = await orderDb.find({ userId: req.user.userId, orderIsPlaced: false });
+            //         console.log(`ORDERTORETURN: ${orderToReturn} `)
+            //         if (orderToReturn.length === 0) {
+            //             error.message = 'Order is either not found or already placed';
+            //             error.status = 404;
+            //             return next(error);
+            //         }
+
+            //         if(orderToReturn.length > 0){
+            //             await orderDb.removeMany({userId: req.user.userId, orderIsPlaced: false}, {multi:true});
+            //         }
+            //         orderToReturn = orderToReturn[0];
+
+            //     }                
+            //     if(orderToReturn === null){
+            //         orderToReturn = new Order();
+            //     }
+            // }
 
             req.order = orderToReturn;
             next();
@@ -68,7 +103,7 @@ const validate = {
         },
 
         many: async (req, res, next) => {
-            const orders = orderDb.find();
+            const orders = await orderDb.find();
 
             if (orders.length < 0) {
                 error.message = 'No orders found'
@@ -191,10 +226,12 @@ const validate = {
         },
 
         isAdmin: async (req, res, next) => {
-            if (!req.user.isAdmin) {
+
+            if (!req.user?.isAdmin) {
                 error.message = 'Unauthorized access.';
                 error.status = 400;
                 return next(error);
+
             }
             next();
         },
@@ -212,7 +249,7 @@ const validate = {
 
     navigation: async (req, res, next) => {
         const navigationItems = await navigationDb.find();
-        
+
         req.navigationItems = navigationItems;
         next();
     }

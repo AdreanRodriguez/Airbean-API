@@ -1,6 +1,1 @@
-{"username":"Moraagana","password":"lösenord","userId":"TCZUT","_id":"8Scp4WTsFJLHP78m","isAdmin":true}
-{"username":"Sandra","password":"lösenord","userId":"AGLDZ","_id":"JWRDUY53zoggjhFi","isAdmin":true}
-{"username":"Oleka","password":"adaa","userId":"P59KV","_id":"UZc1FjK0Bx5APgLf","isAdmin":false}
-{"username":"Olekaaaaaa","password":"adaa","userId":"P1IDF","_id":"bY2dno10ZyXMM0Gd","isAdmin":false}
-{"username":"Olek","password":"adaa","userId":"OODGN","_id":"gkMcBP0rbcRiLVdj","isAdmin":false}
-{"username":"Morgan","password":"lösenord","userId":"OWQP5","_id":"zQIWpHU6CBnziC6B","isAdmin":false}
+{"username":"Morgan","password":"lösenord","userId":"RO6LL","email":"morgan@olaconny.se","firstName":"Morgan","lastName":"Morgansson","address":"Bananskalsvägen 40, 50505 Göteborg","isAdmin":true,"_id":"3wzAzlIUg0WqhOzt"}

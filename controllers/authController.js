@@ -5,9 +5,9 @@ export default class AuthController {
 
     //URL = api/auth/register
     registerUser = async (req, res) => {
-        const { username, password } = req.body;
+        const { username, password, email, firstName, lastName, address } = req.body;
 
-        const users = await db.find();
+        const users = await userDb.find();
 
         let randomId = Math.random().toString(36).slice(2, 7).toUpperCase();
         if (users.length < 1) {
@@ -22,7 +22,11 @@ export default class AuthController {
             username: username,
             password: password,
             userId: randomId,
-            isAdmin: false
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+            address: address,
+            isAdmin: false 
         }
 
         userDb.insert(newUser);
@@ -67,5 +71,18 @@ export default class AuthController {
             status: 201,
             user: processedData
         });
-    }
+    };
+
+    getAllUsers = async (req,res) => {
+        const users = await userDb.find();
+
+        users.map(user => delete user.password);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Active users found.',
+            status: 201,
+            users: users
+        })
+    };
 }
