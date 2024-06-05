@@ -9,10 +9,11 @@ const controller = new AuthController();
 router.get('/users',
     authenticateMiddleware.checkUser, 
     validateMiddleware.users.isAdmin, 
-    controller.getAllUsers)
-
+    controller.getAllUsers);
+// GET - /api/auth/users/:userId
 router.get('/users/:userId',
     authenticateMiddleware.checkUserStrict, 
+    validateMiddleware.users.isAdmin, 
     controller.getUser);
 
 router.post('/register', 

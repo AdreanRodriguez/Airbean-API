@@ -3,7 +3,7 @@ import { userDb } from '../models/userModel.js';
 export default class AuthController {
     SECRET_KEY = process.env.SECRET_KEY || "a59be5d7-0753-4d62-b665-e62d62a63c5b";
 
-    //URL = api/auth/register
+    // URL = api/auth/register
     registerUser = async (req, res) => {
         const { username, password, email, firstName, lastName, address } = req.body;
 
@@ -38,7 +38,7 @@ export default class AuthController {
         });
     };
 
-    //URL = api/auth/login
+    // URL = api/auth/login
     loginUser = async (req, res) => {
 
         return res.status(202).json({
@@ -49,32 +49,19 @@ export default class AuthController {
         })
     }
     
-    //URL = api/auth/users/:userId
+    // URL = api/auth/users/:userId
     getUser = async (req, res) => {
-
-        const userId = req.params.userId;
-        const user = await userDb.findOne({ userId: userId });
-
-        if (!user) return res.status(404).json({
-            success: false,
-            message: 'User not found',
-            status: 404,
-        });
-
-        //Ta bord lösenordet från användarens uppgifter
-        delete user.password;
-
         return res.status(201).json({
             success: true,
             message: 'User found',
             status: 201,
-            user: user
+            user: req.searchedUser
         });
     };
 
+    // URL = api/auth/users/
     getAllUsers = async (req,res) => {
         const users = await userDb.find();
-
         users.map(user => delete user.password);
 
         return res.status(200).json({

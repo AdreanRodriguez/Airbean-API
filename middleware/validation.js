@@ -5,6 +5,7 @@ import { navigationDb } from '../models/navigationModel.js';
 import { userDb, userSchema, loginSchema } from '../models/userModel.js';
 
 const SECRET_KEY = process.env.SECRET_KEY || "a59be5d7-0753-4d62-b665-e62d62a63c5b";
+
 const error = new Error();
 
 const validate = {
@@ -102,7 +103,13 @@ const validate = {
             next();
         },
 
-        placeOrder: async (req, res, next) => {
+        isOrderPlaced: async (req, res, next) => {
+            if (order.orderIsPlaced) {
+                error.message = 'Unauthorized access: Order already placed.';
+                error.status = 400;
+                return next(error);
+            }
+            next();
 
         },
         userIdInsideOrder: (req, res, next) => {
@@ -115,7 +122,7 @@ const validate = {
                         return next(error);
                     }
                 }
-                else{
+                else {
                     order.userId = user.userId
                 }
             }
@@ -131,7 +138,7 @@ const validate = {
             const { productId } = req.params;
 
             if (!productId) {
-                error.message = 'No ID found';
+                error.message = 'No ID found.';
                 error.status = 404;
                 return next(error);
             }
@@ -139,7 +146,7 @@ const validate = {
             const product = await productDb.findOne({ _id: productId });
 
             if (!product) {
-                error.message = 'Product not found';
+                error.message = 'Product not found.';
                 error.status = 404;
                 return next(error);
             }
@@ -150,9 +157,9 @@ const validate = {
         },
 
         many: async (req, res, next) => {
-            const products = await productDb.find();
+            const products = await productDb.find().sort({ id: 1 });
             if (!products || products.length <= 0) {
-                error.message = 'No products found';
+                error.message = 'Products not found.';
                 error.status = 400;
                 return next(error);
             }
@@ -191,7 +198,7 @@ const validate = {
         login: async (req, res, next) => {
             const { error } = loginSchema.validate(req.body);
             const { username, password } = req.body;
-            
+
             if (error) {
                 error.message = error.details[0].message;
                 error.status = 400;
@@ -206,7 +213,6 @@ const validate = {
                 return next(error);
             }
 
-
             const token = jwt.sign(user, SECRET_KEY);
             req.token = token;
 
@@ -216,11 +222,31 @@ const validate = {
         isAdmin: async (req, res, next) => {
 
             if (!req.user?.isAdmin) {
-                error.message = 'Unauthorized access.';
+                error.message = 'Unauthorized access: User not Admin.';
                 error.status = 400;
                 return next(error);
-
             }
+            next();
+        },
+
+        validUserIdParam: async (req, res, next) => {
+            const {userId} = req.params;
+
+            if(!userId){
+                error.message = 'Bad credentials: no userId in parameter.';
+                error.status = 400;
+                return next(error);
+            }
+            const searchedUser = await userDb.findOne({ userId: userId });
+
+            if (!searchedUser) {
+                error.message = `Bad credentials: no user with userId ${userId}.`;
+                error.status = 400;
+                return next(error);
+            }
+            //Ta bort lösenordet från användarens uppgifter
+            delete searchedUser.password;
+            req.searchedUser = searchedUser;
             next();
         },
 
