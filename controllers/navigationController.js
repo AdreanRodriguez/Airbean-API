@@ -13,7 +13,6 @@ export default class NavigationController{
 
     setup = async (req, res) => {
         let defaultData = req.navigationItems;
-        console.log(req.navigationItems)
         if(req.navigationItems.length === 0){
 
             defaultData = [
