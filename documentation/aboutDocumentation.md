@@ -1,7 +1,7 @@
 # GET - /api/about
 
 
-* ### Specifik information om företaget/kaffet
+### Specifik information om företaget/kaffet
 
 ## Returns
 ```

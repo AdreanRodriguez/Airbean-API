@@ -15,6 +15,7 @@
     message: 'Internal server error.',
     status: 500
 ```
+<hr><br><br>
 
 # GET - /api/products/
 *Fetches a specific product by its ID.*
@@ -33,3 +34,4 @@
     message: 'Product not found.',
     status: 404
 ```
+<hr><br><br>

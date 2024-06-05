@@ -21,7 +21,8 @@ authorization: "eafyasd..." // Värdet ska vara den token man får när man logg
     status: 200,
     orders: [...]
 ```
-<br><br>
+<hr><br><br>
+
 ## GET - /api/orders/history
 Hämtar orderhistorik för den autentiserade användaren.
 
@@ -49,11 +50,7 @@ authorization: "eafyasd..." // Värdet ska vara den token man får när man logg
     message: 'Unauthorized access.',
     status: 401
 ```
-<hr style="
-height:3px; 
-background-color: grey; 
-border-radius: 2px; 
-margin-top: 2rem; margin-bottom:5rem;">
+<hr><br><br>
 
 
 ## GET - /api/orders/:orderId
@@ -86,7 +83,7 @@ authorization: "eafyasd..." // Värdet ska vara den token man får när man logg
     message: 'Order not found.',
     status: 404
 ```
-<br><br> 
+<hr><br><br>
 
 ## POST - /api/orders/:productId
 Lägger till en produkt i användarens aktiva beställning.
@@ -96,9 +93,18 @@ Lägger till en produkt i användarens aktiva beställning.
 >* `amount` är valfri att ha med. 
 >>* Om `amount` inte finns med som parameter:  `amount = 1`
 >>* Om `amount` har ett negativt, eller 0, som värde: `amount = 1`  
+
+### Middleware
+* [checkUser](../middleware/validation.js)
+* [orders.one](https://github.com/AdreanRodriguez/Airbean-API/blob/10-orderHistory/middleware/validation.js#L15)
+* products.one
+* orders.userIdInsideOrder
+
+### Req.headers
 ```
 authorization: "eafyasd..." // Värdet ska vara den token man får när man loggar in 
 ```
+
 ### Req.body
 ```
     orderId?: string,
@@ -132,12 +138,28 @@ authorization: "eafyasd..." // Värdet ska vara den token man får när man logg
     message: 'Order not found.',
     status: 404
 ```
-<br><br>
+<hr><br><br>
 
-## DELETE - /api/orders/
+## DELETE - /api/orders/:productId
+Tar bort en produkt i användarens aktiva beställning.
+>* `orderId` Måste finnas som parameter.
+>* Om man inte loggat in innan, när man börjat plocka produkter, utan gör det senare och fortsätter lägga i varor i kundkorgen, så kopplas `userId` till kundkorgen hädanefter. 
+>* Om ett `userId` redan finns kopplat till ordern och man loggar ut, alternativt är inloggad på någon annan, och försöker ta bort varor från korgen så kommer detta inte gå. När ett userId är kopplat till en order så kan det inte ändras eller kommas åt av varken gäst eller annan användare.
+>* `amount` är valfri att ha med. 
+>>* Om `amount` inte finns med som parameter:  `amount = 1`
+>>* Om `amount` har ett negativt, eller 0, som värde: `amount = 1`  
+
+### Middleware
+* orders.oneStrict
+* checkUser
+* products.one
+* orders.userIdInsideOrder
+
+### Req.headers
 ```
-    authorization: "eafyasd..." // Värdet ska vara den token man får när man loggar in 
+authorization: "eafyasd..." // Värdet ska vara den token man får när man loggar in 
 ```
+
 ### Req.body
 ```
     orderId: string,
@@ -166,3 +188,49 @@ authorization: "eafyasd..." // Värdet ska vara den token man får när man logg
     message: 'Order not found.',
     status: 404
 ```
+
+<hr><br><br>
+
+## POST - /api/orders/:orderId/place
+Placerar ordern vars orderId stämmet överens med `orderId`. 
+
+### Middleware
+* orders.oneStrict
+* checkUser
+* products.one
+* orders.userIdInsideOrder
+
+### Req.headers
+```
+    authorization: "eafyasd..." // Värdet ska vara den token man får när man loggar in 
+```
+
+### Req.body
+```
+    orderId: string,
+    amount?: number
+```
+### Returns
+* Successful Response
+```
+    success: true,
+    message: 'Product successfully removed from order.',
+    status: 200,
+    order: {...},
+    removedProduct: {...}
+```
+
+## Errors
+* Unauthorized Access
+```
+    success: false,
+    message: 'Unauthorized access.',
+    status: 401
+```
+### Order Not Found
+```
+    success: false,
+    message: 'Order not found.',
+    status: 404
+```
+<hr><br><br>

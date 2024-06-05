@@ -8,7 +8,14 @@ Hämtar alla navigeringsobjekt.
     status: 200,
     navigationItems: [...]
 ```
-# Errors <INTE KLAR try catch kanske>?
+# Errors
+* Unauthorized Access
+```
+    error.message = `Bad credentials: No info found for about page.`;
+    error.status = 400;
+    return next(error);
+```
+<br><br>
 
 # GET - /api/navigation/setup
 Ställer in standardnavigeringsobjekt om inga finns.
