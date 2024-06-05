@@ -1,0 +1,149 @@
+Order-API Dokumentation
+Detta dokument ger detaljerad information om API-endpunkterna relaterade till orderhantering,
+ deras syften och de nödvändiga mellanprogram (middlewares) för att hantera förfrågningar.
+
+Endpoints
+1. Hämta All Orderhistorik
+URL: GET /api/orders
+
+Headers: { authorization }
+
+Beskrivning: Hämtar den kompletta orderhistoriken. Endast tillgänglig för administratörer.
+
+
+Middlewares:
+
+authMiddleware.checkUserStrict: Säkerställer att användaren är autentiserad.
+validateMiddleware.users.isAdmin: Validerar att användaren är administratör.
+validateMiddleware.orders.many: Validerar flera orderparametrar.
+controller.getAllHistory: Hanterar förfrågan och hämtar all orderhistorik.
+2. Hämta Orderhistorik för en Specifik Användare
+URL: GET /api/orders/history
+
+Headers: { authorization }
+
+Beskrivning: Hämtar orderhistorik för den autentiserade användaren.
+
+Middlewares:
+
+authMiddleware.checkUserStrict: Säkerställer att användaren är autentiserad.
+validateMiddleware.orders.history: Validerar parametrar för orderhistorikförfrågningar.
+controller.getHistoryByUserId: Hanterar förfrågan och hämtar orderhistoriken för den autentiserade användaren.
+3. Hämta Specifik Order efter ID
+URL: GET /api/orders/:orderId
+
+Headers: { authorization }
+
+Beskrivning: Hämtar detaljer om en specifik order efter dess ID.
+
+Middlewares:
+
+validateMiddleware.orders.one: Validerar order-ID-parametern.
+controller.getOrderById: Hanterar förfrågan och hämtar orderdetaljerna.
+4. Lägg Order
+URL: GET /api/orders/:orderId/place
+
+Headers: { authorization }
+
+Beskrivning: Lägger en order för det angivna order-ID
+.
+
+Middlewares:
+
+validateMiddleware.orders.oneStrict: Strikt validering av order-ID.
+authMiddleware.checkUser: Säkerställer att användaren är autentiserad.
+controller.placeOrder: Hanterar förfrågan och lägger ordern.
+5. Hämta Beräknad Tid Kvar för en Order
+URL: GET /api/orders/:orderId/estimatedTimeLeft
+
+Headers: { authorization }
+
+Beskrivning: Hämtar den beräknade tiden kvar för att slutföra en specifik order.
+
+Middlewares:
+
+validateMiddleware.orders.oneStrict: Strikt validering av order-ID.
+authMiddleware.checkUser: Säkerställer att användaren är autentiserad.
+validateMiddleware.orders.userIdInsideOrder: Säkerställer att användaren är associerad med ordern.
+controller.getEstimatedTimeLeft: Hanterar förfrågan och beräknar den återstående tiden.
+6. Lägg till Produkt i Aktiv Order
+URL: POST /api/orders/:productId
+
+Headers: { authorization }
+
+Body: { orderId, amount? }
+
+Beskrivning: Lägger till en produkt i användarens aktiva order. Om ingen aktiv order finns skapas en ny tom order.
+
+Middlewares:
+
+authMiddleware.checkUser: Säkerställer att användaren är autentiserad.
+validateMiddleware.orders.one: Validerar order-ID-parametern.
+validateMiddleware.products.one: Validerar produkt-ID-parametern.
+controller.addProduct: Hanterar förfrågan och lägger till produkten i den aktiva ordern.
+7. Ta Bort Produkt från Order
+URL: DELETE /api/orders/:productId
+
+Headers: { authorization }
+
+Body: { orderId, amount? }
+
+Beskrivning: Tar bort en produkt från användarens order.
+
+Middlewares:
+
+validateMiddleware.orders.oneStrict: Strikt validering av order-ID.
+authMiddleware.checkUser: Säkerställer att användaren är autentiserad.
+validateMiddleware.products.one: Validerar produkt-ID-parametern.
+controller.removeProduct: Hanterar förfrågan och tar bort produkten från ordern.
+
+Middlewares
+authMiddleware.checkUserStrict: Verifierar användarens autentiseringsstatus strikt.
+validateMiddleware.users.isAdmin: Kontrollerar om användaren har administratörsrättigheter.
+validateMiddleware.orders.many: Validerar flera orderrelaterade parametrar.
+validateMiddleware.orders.history: Validerar parametrar relaterade till hämtning av orderhistorik.
+validateMiddleware.orders.one: Validerar ett enskilt order-ID.
+validateMiddleware.orders.oneStrict: Strikt validering för ett enskilt order-ID.
+validateMiddleware.orders.userIdInsideOrder: Säkerställer att användaren är associerad med ordern.
+validateMiddleware.products.one: Validerar ett enskilt produkt-ID.
+
+Kontrollers
+controller.getAllHistory: Hämtar all orderhistorik.
+controller.getHistoryByUserId: Hämtar orderhistorik för den autentiserade användaren.
+controller.getOrderById: Hämtar detaljer om en specifik order efter ID.
+controller.placeOrder: Lägger en order.
+controller.getEstimatedTimeLeft: Beräknar den återstående tiden för en order.
+controller.addProduct: Lägger till en produkt i användarens aktiva order.
+controller.removeProduct: Tar bort en produkt från användarens order.
+Anmärkningar
+Alla endpunkter kräver en authorization header för autentisering.
+Begärans body för att lägga till och ta bort produkter bör inkludera orderId och eventuellt amount.
+
+
+
+
+
+Hämta All Orderhistorik
+URL: GET /api/orders
+Beskrivning: Hämtar all orderhistorik för administratörer.
+Hämta Orderhistorik för Användare
+URL: GET /api/orders/history
+Beskrivning: Hämtar orderhistorik för den autentiserade användaren.
+Hämta Specifik Order
+URL: GET /api/orders/:orderId
+Beskrivning: Hämtar detaljer för en specifik order.
+Lägg Order
+URL: GET /api/orders/:orderId/place
+Beskrivning: Placerar en order för en specifik order-ID.
+Beräkna Tid Kvar för Order
+URL: GET /api/orders/:orderId/estimatedTimeLeft
+Beskrivning: Hämtar beräknad återstående tid för en order.
+Lägg till Produkt i Order
+URL: POST /api/orders/:productId
+Beskrivning: Lägger till en produkt i användarens aktiva order.
+Ta Bort Produkt från Order
+URL: DELETE /api/orders/:productId
+Beskrivning: Tar bort en produkt från användarens order.
+Anmärkningar
+Alla förfrågningar kräver en authorization header för autentisering.
+För att lägga till eller ta bort produkter, inkludera orderId och valfri amount i förfrågningsbodyn.

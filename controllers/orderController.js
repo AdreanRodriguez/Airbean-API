@@ -1,7 +1,6 @@
 import { orderDb } from '../models/orderModel.js';
 export default class OrderController {
 
-
     getOrderById = (req, res) => {
         res.json({
             success: true,
@@ -12,20 +11,7 @@ export default class OrderController {
     }
 
     placeOrder = async (req, res, next) => {
-        const { order, user } = req;
-
-        if (user) {
-
-            if (!order.userId || order.userId === '') {
-                order.userId = user.userId;
-            }
-
-            if (order.userId !== user.userId) {
-                return next(new Error('Wrong userId for order.'));
-            }
-        }
-        if (order.userId !== '' && !user) return next(new Error('Wrong userId for order.'));
-        if (order.orderIsPlaced) return next(new Error('Order already placed.'));
+        const { order } = req;
 
         order.orderPlacedAt = new Date();
         order.orderIsPlaced = true;
@@ -35,7 +21,7 @@ export default class OrderController {
             combinedEstimatedTimeInMinutes += item.product.estimatedTimeInMinutes * item.amount;
         }
 
-        combinedEstimatedTimeInMinutes = combinedEstimatedTimeInMinutes
+        combinedEstimatedTimeInMinutes = combinedEstimatedTimeInMinutes;
         order.estimatedTimeInMinutes = Math.min(10 + (combinedEstimatedTimeInMinutes), 30);
 
         await this.update(order);
@@ -50,20 +36,13 @@ export default class OrderController {
     }
 
     addProduct = async (req, res) => {
-        const { order, product, user } = req;
-        console.log(order)
-        if (user) {
-            if (order.userId === '') {
-                order.userId = user.userId
-            }
-            if (order.userId !== user.userId) return next(new Error('Wrong userId for order.'));
-        }
+        const { order, product} = req;
 
         let { amount } = req.body;
         amount = !amount || amount <= 0 ? 1 : amount;
         const index = order.products.findIndex(item => item.product._id === product._id)
 
-        order.totalAmount += product.price * amount;
+        order.totalPrice += product.price * amount;
 
         if (index === -1) {
             order.products.unshift({
@@ -84,31 +63,22 @@ export default class OrderController {
                 order: order,
                 addedProduct: product
             });
-
     };
 
     removeProduct = async (req, res) => {
-        const { order, product, user } = req;
-        if (user) {
-            if (order.userId === '') {
-                order.userId = user.userId
-            }
-            if (order.userId !== user.userId) return next(new Error('Wrong userId for order.'));
-        }
-
-
+        const { order, product} = req;
 
         let { amount } = req.body;
-        amount = !amount || amount <= 0 ? 1 : amount;
 
         const index = order.products.findIndex(item => item.product._id === product._id)
-        order.totalAmount -= product.price * amount;
+        amount = Math.min(Math.max(amount, 1), order.products[index].amount)
+        order.totalPrice -= product.price * amount; //Korrigerar priset
 
         if (order.products[index].amount <= amount) {
-            order.products.splice(index, 1);
+            order.products.splice(index, 1); //Tar bort produkten om det inte finns några fler varor kvar av den.
         }
         else {
-            order.products[index].amount -= amount;
+            order.products[index].amount -= amount; //Tar bort mängden varor från korgen.
         }
         await this.update(order);
         return res.status(200)
@@ -119,13 +89,12 @@ export default class OrderController {
                 order: order,
                 removedProduct: product
             });
-
     };
 
     getEstimatedTimeLeft = async (req, res) => {
         const { order } = req;
         const now = new Date();
-        const orderPlacedAt = new Date(order.orderPlacedAt);
+        const orderPlacedAt = new Date(order.orderPlacedAt); //Detta görs för att få en riktig Date variabel att använda när man placerade ordern.
         const elapsedTime = (now - orderPlacedAt);
         let remainingTime = (order.estimatedTimeInMinutes*60000) - elapsedTime; // Återstående tid i millisekunder
 
@@ -134,7 +103,7 @@ export default class OrderController {
             remainingTime = 0;
             return res.json({
                 success: true,
-                message: 'Kaffet ska ha levererats nu, enligt vårt supersäkra system!',
+                message: 'Kaffet ska ha levererats nu, enligt vårt supersäkra system! Coolt va?',
                 status: 200,
             });
         }
@@ -145,7 +114,7 @@ export default class OrderController {
     
         res.json({ 
             success: true,
-            message: `Uppskattad återstående tid: ${minutes} minuter och ${seconds} sekunder`,
+            message: `Uppskattad återstående tid: ${minutes} minuter och ${seconds} sekunder.`,
             time: {
                 minutes: minutes,
                 seconds: seconds
@@ -183,7 +152,7 @@ export default class OrderController {
                         $set: {
                             userId: order.userId,
                             products: order.products,
-                            totalAmount: order.totalAmount,
+                            totalPrice: order.totalPrice,
                             orderPlacedAt: order.orderPlacedAt,
                             estimatedTimeInMinutes: order.estimatedTimeInMinutes,
                             orderIsPlaced: order.orderIsPlaced

@@ -25,5 +25,4 @@ const aboutInfo = async (req, res) => {
     }
 };
 
-
 export { aboutDb, aboutInfo };
