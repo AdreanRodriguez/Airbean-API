@@ -12,19 +12,8 @@ export default class OrderController {
     }
 
     placeOrder = async (req, res, next) => {
-        const { order, user } = req;
+        const { order } = req;
 
-        if (user) {
-
-            if (!order.userId || order.userId === '') {
-                order.userId = user.userId;
-            }
-
-            if (order.userId !== user.userId) {
-                return next(new Error('Wrong userId for order.'));
-            }
-        }
-        if (order.userId !== '' && !user) return next(new Error('Wrong userId for order.'));
         if (order.orderIsPlaced) return next(new Error('Order already placed.'));
 
         order.orderPlacedAt = new Date();
@@ -35,7 +24,7 @@ export default class OrderController {
             combinedEstimatedTimeInMinutes += item.product.estimatedTimeInMinutes * item.amount;
         }
 
-        combinedEstimatedTimeInMinutes = combinedEstimatedTimeInMinutes
+        combinedEstimatedTimeInMinutes = combinedEstimatedTimeInMinutes;
         order.estimatedTimeInMinutes = Math.min(10 + (combinedEstimatedTimeInMinutes), 30);
 
         await this.update(order);
