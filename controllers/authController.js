@@ -43,7 +43,7 @@ export default class AuthController {
 
         return res.status(202).json({
             success: true,
-            message: 'Logged in successfully!',
+            message: 'Logged in successfully! Dont forget to save the token for the users requests',
             status: 202,
             token: req.token
         })

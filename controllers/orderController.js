@@ -1,7 +1,6 @@
 import { orderDb } from '../models/orderModel.js';
 export default class OrderController {
 
-
     getOrderById = (req, res) => {
         res.json({
             success: true,
@@ -43,7 +42,7 @@ export default class OrderController {
         amount = !amount || amount <= 0 ? 1 : amount;
         const index = order.products.findIndex(item => item.product._id === product._id)
 
-        order.totalAmount += product.price * amount;
+        order.totalPrice += product.price * amount;
 
         if (index === -1) {
             order.products.unshift({
@@ -70,10 +69,10 @@ export default class OrderController {
         const { order, product} = req;
 
         let { amount } = req.body;
-        amount = !amount || amount <= 0 ? 1 : amount; //Säkerställer att amount aldrig är 0 eller negativt.
 
         const index = order.products.findIndex(item => item.product._id === product._id)
-        order.totalAmount -= product.price * amount; //Korrigerar priset
+        amount = Math.min(Math.max(amount, 1), order.products[index].amount)
+        order.totalPrice -= product.price * amount; //Korrigerar priset
 
         if (order.products[index].amount <= amount) {
             order.products.splice(index, 1); //Tar bort produkten om det inte finns några fler varor kvar av den.
@@ -153,7 +152,7 @@ export default class OrderController {
                         $set: {
                             userId: order.userId,
                             products: order.products,
-                            totalAmount: order.totalAmount,
+                            totalPrice: order.totalPrice,
                             orderPlacedAt: order.orderPlacedAt,
                             estimatedTimeInMinutes: order.estimatedTimeInMinutes,
                             orderIsPlaced: order.orderIsPlaced

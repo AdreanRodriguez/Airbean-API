@@ -15,7 +15,7 @@ export default class Order {
         this.orderPlacedAt = '';
         this.orderIsPlaced = false;
         this.products = []; // {product: {produkt-objektet}, amount: 3}
-        this.totalAmount = 0;
+        this.totalPrice = 0;
         this.credentials = {
             firstName: '',
             lastName: '',

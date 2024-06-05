@@ -14,6 +14,7 @@ router.get('/users',
 router.get('/users/:userId',
     authenticateMiddleware.checkUserStrict, 
     validateMiddleware.users.isAdmin, 
+    validateMiddleware.users.validUserIdParam,
     controller.getUser);
 
 router.post('/register', 

@@ -171,9 +171,9 @@ const validate = {
 
     users: {
         register: async (req, res, next) => {
-            const { error } = userSchema.validate(req.body);
+            const { joiError } = userSchema.validate(req.body);
 
-            if (error) {
+            if (joiError) {
                 error.message = error.details[0].message;
                 error.status = 400;
                 return next(error);
@@ -196,10 +196,10 @@ const validate = {
         },
 
         login: async (req, res, next) => {
-            const { error } = loginSchema.validate(req.body);
+            const { joiError } = loginSchema.validate(req.body);
             const { username, password } = req.body;
 
-            if (error) {
+            if (joiError) {
                 error.message = error.details[0].message;
                 error.status = 400;
                 return next(error);
