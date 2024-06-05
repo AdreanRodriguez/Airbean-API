@@ -12,7 +12,7 @@ router.get('/users',
     controller.getAllUsers)
 
 router.get('/users/:userId',
-    authenticateMiddleware.checkUser, 
+    authenticateMiddleware.checkUserStrict, 
     controller.getUser);
 
 router.post('/register', 

@@ -11,7 +11,12 @@ const userSchema = Joi.object({
     address : Joi.string().min(4).required(),
 });
 
-export default userSchema;
+const loginSchema = Joi.object({
+    username : Joi.string().min(4).max(15).alphanum().required(),
+    password : Joi.string().min(4).max(30).pattern(/^[a-zåäöA-ZÅÄÖ0-9 ]+$/).required()
+})
+
+export {userSchema, loginSchema};
 export const userDb = nedb.create({
     filename: 'config/users.db',
     autoload: true

@@ -50,14 +50,7 @@ export default class OrderController {
     }
 
     addProduct = async (req, res) => {
-        const { order, product, user } = req;
-        console.log(order)
-        if (user) {
-            if (order.userId === '') {
-                order.userId = user.userId
-            }
-            if (order.userId !== user.userId) return next(new Error('Wrong userId for order.'));
-        }
+        const { order, product} = req;
 
         let { amount } = req.body;
         amount = !amount || amount <= 0 ? 1 : amount;

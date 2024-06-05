@@ -31,6 +31,7 @@ router.get('/:orderId',
 router.get('/:orderId/place',
     validateMiddleware.orders.oneStrict,
     authMiddleware.checkUser,
+    validateMiddleware.orders.userIdInsideOrder,
     controller.placeOrder);
 
 // URL = GET /api/orders/:orderId/estimatedTimeLeft, header: {authorization}
@@ -47,6 +48,7 @@ router.post('/:productId',
     authMiddleware.checkUser,
     validateMiddleware.orders.one,
     validateMiddleware.products.one,
+    validateMiddleware.orders.userIdInsideOrder,
     controller.addProduct);
 
 

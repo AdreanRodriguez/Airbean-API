@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { productDb } from '../models/productModel.js';
 import Order, { orderDb } from '../models/orderModel.js';
 import { navigationDb } from '../models/navigationModel.js';
-import userSchema, { userDb } from '../models/userModel.js';
+import { userDb, userSchema, loginSchema } from '../models/userModel.js';
 
 const SECRET_KEY = process.env.SECRET_KEY || "a59be5d7-0753-4d62-b665-e62d62a63c5b";
 const error = new Error();
@@ -37,30 +37,6 @@ const validate = {
             else {
                 orderToReturn = await orderDb.findOne({ orderId: orderId, orderIsPlaced: false });
             }
-
-            // if (!orderId) {
-            //     orderToReturn = new Order();
-            // } else {
-
-            //     if(req.user){
-            //         orderToReturn = await orderDb.find({ userId: req.user.userId, orderIsPlaced: false });
-            //         console.log(`ORDERTORETURN: ${orderToReturn} `)
-            //         if (orderToReturn.length === 0) {
-            //             error.message = 'Order is either not found or already placed';
-            //             error.status = 404;
-            //             return next(error);
-            //         }
-
-            //         if(orderToReturn.length > 0){
-            //             await orderDb.removeMany({userId: req.user.userId, orderIsPlaced: false}, {multi:true});
-            //         }
-            //         orderToReturn = orderToReturn[0];
-
-            //     }                
-            //     if(orderToReturn === null){
-            //         orderToReturn = new Order();
-            //     }
-            // }
 
             req.order = orderToReturn;
             next();
@@ -131,15 +107,20 @@ const validate = {
         },
         userIdInsideOrder: (req, res, next) => {
             const { order, user } = req;
-            if (order.userId !== '') {
-                if (order.userId !== user.userId) {
-                    error.message = 'Unauthorized access.';
-                    error.status = 400;
-                    return next(error);
+            if (user) {
+                if (order.userId !== '') {
+                    if (order.userId !== user.userId) {
+                        error.message = 'Unauthorized access: User ID is not the same as the one inside order.';
+                        error.status = 400;
+                        return next(error);
+                    }
+                }
+                else{
+                    order.userId = user.userId
                 }
             }
-            next();
 
+            next();
         }
 
     },
@@ -199,7 +180,7 @@ const validate = {
             }
 
             if (await userDb.findOne({ username: username })) {
-                error.message = 'Username already exists.';
+                error.message = 'Username already taken.';
                 error.status = 401;
                 return next(error);
             }
@@ -208,7 +189,14 @@ const validate = {
         },
 
         login: async (req, res, next) => {
+            const { error } = loginSchema.validate(req.body);
             const { username, password } = req.body;
+            
+            if (error) {
+                error.message = error.details[0].message;
+                error.status = 400;
+                return next(error);
+            }
 
             const user = await userDb.findOne({ username: username, password: password });
 
@@ -234,14 +222,6 @@ const validate = {
 
             }
             next();
-        },
-
-        getOne: async (req, res, next) => {
-            //hämtar info om personen, om man har rättigheter till det.
-        },
-
-        getAll: async (req, res, next) => {
-            //Kolla om man är admin eller inte.
         },
 
 

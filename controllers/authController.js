@@ -61,15 +61,14 @@ export default class AuthController {
             status: 404,
         });
 
-        // processedData ser till så att vi inte skickar med lösenordet
-        let processedData = JSON.stringify(user, (key, value) => { return key !== 'password' ? value : undefined });
-        processedData = JSON.parse(processedData);
+        //Ta bord lösenordet från användarens uppgifter
+        delete user.password;
 
         return res.status(201).json({
             success: true,
             message: 'User found',
             status: 201,
-            user: processedData
+            user: user
         });
     };
 
