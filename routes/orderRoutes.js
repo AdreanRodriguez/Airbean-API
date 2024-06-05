@@ -21,7 +21,6 @@ router.get('/history',
     validateMiddleware.orders.history,
     controller.getHistoryByUserId);
 
-
 // URL = GET /api/orders/history, header: {authorization}
 router.get('/:orderId',
     validateMiddleware.orders.one,
@@ -51,7 +50,6 @@ router.post('/:productId',
     validateMiddleware.products.one,
     validateMiddleware.orders.userIdInsideOrder,
     controller.addProduct);
-
 
 // URL = DELETE /api/orders/:productId, body: {orderId, amount?}, header: {authorization}
 router.delete('/:productId',

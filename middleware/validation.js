@@ -16,7 +16,6 @@ const validate = {
             const { orderId } = req.body;
             const { user } = req;
 
-            console.log(`INNE I ONE ${orderId}`);
             let orderToReturn = null;
 
             if (!orderId) {
@@ -26,8 +25,6 @@ const validate = {
                     if (!orderToReturn) {
                         orderToReturn = new Order(user.userId);
                         await orderToReturn.init();
-
-
                     }
                 } else {
                     orderToReturn = new Order();
@@ -47,7 +44,6 @@ const validate = {
         oneStrict: async (req, res, next) => {
             let { orderId } = req.body;
             const { productId } = req.params;
-
 
             if (!orderId) {
                 if (req.params.orderId) {
@@ -126,14 +122,11 @@ const validate = {
                     order.userId = user.userId
                 }
             }
-
             next();
         }
-
     },
 
     products: {
-
         one: async (req, res, next) => {
             const { productId } = req.params;
 
@@ -230,9 +223,9 @@ const validate = {
         },
 
         validUserIdParam: async (req, res, next) => {
-            const {userId} = req.params;
+            const { userId } = req.params;
 
-            if(!userId){
+            if (!userId) {
                 error.message = 'Bad credentials: no userId in parameter.';
                 error.status = 400;
                 return next(error);
@@ -249,8 +242,6 @@ const validate = {
             req.searchedUser = searchedUser;
             next();
         },
-
-
     },
 
     navigation: async (req, res, next) => {
@@ -259,7 +250,6 @@ const validate = {
         req.navigationItems = navigationItems;
         next();
     }
-
 }
 
 export default validate;

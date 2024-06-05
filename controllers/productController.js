@@ -1,4 +1,3 @@
-import { productDb as db } from '../models/productModel.js'
 
 export default class ProductController {
     // URL =  api/products

@@ -10,10 +10,7 @@ export default class AuthController {
         const users = await userDb.find();
 
         let randomId = Math.random().toString(36).slice(2, 7).toUpperCase();
-        if (users.length < 1) {
-            console.log(randomId);
-        }
-        else {
+        if (users.length >= 1) {
             while (users.some(user => user.userId === randomId)) {
                 randomId = Math.random().toString(36).slice(2, 7).toUpperCase();
             }
@@ -26,7 +23,7 @@ export default class AuthController {
             firstName: firstName,
             lastName: lastName,
             address: address,
-            isAdmin: false 
+            isAdmin: false
         }
 
         userDb.insert(newUser);
@@ -48,7 +45,7 @@ export default class AuthController {
             token: req.token
         })
     }
-    
+
     // URL = api/auth/users/:userId
     getUser = async (req, res) => {
         return res.status(201).json({
@@ -60,7 +57,7 @@ export default class AuthController {
     };
 
     // URL = api/auth/users/
-    getAllUsers = async (req,res) => {
+    getAllUsers = async (req, res) => {
         const users = await userDb.find();
         users.map(user => delete user.password);
 

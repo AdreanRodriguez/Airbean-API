@@ -15,7 +15,7 @@ Skapar en ny användare baserat på information från `req.body`
 
 ## Returns
 
-* #### Lyckad registrering
+* #### Successful Response
 ```
 	success: true,
 	message: 'Successfully added user',
@@ -58,7 +58,7 @@ Loggar in användare till hemsidan
 
 ## Returns
 
-* ### Lyckad inloggning
+* ### Successful Response
 ```
 	success: true,
 	message: 'Logged in succesfully!',
@@ -89,7 +89,7 @@ Returnerar alla användare.
 
 ## Returns
 
-* ### Lyckad inloggning
+* ### Successful Response
 ```
 	success: true,
 	message: 'Active users found!',
@@ -106,7 +106,7 @@ Returnerar alla användare.
 	status = 400
 ```
 
-# GET - /api/auth/users/:usersId  <INTE KLAR>
+# GET - /api/auth/users/:usersId
 *KAN ENDAST ANVÄNDAS SOM ADMIN*
 
 Returnerar specifik användare.
@@ -138,5 +138,4 @@ Returnerar specifik användare.
 	"success": false,
 	"message": "Unauthorized access: ",
 	"status": 400
-	
 ```
