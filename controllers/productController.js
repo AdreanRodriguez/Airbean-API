@@ -10,6 +10,7 @@ export default class ProductController {
             products: req.products
         });
     }
+    
     // ENSKILD PRODUKT PÅ ID
     // URL =  api/products/:productId
     getProduct = async (req, res) => {

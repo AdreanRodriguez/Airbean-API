@@ -7,7 +7,7 @@ import OrderController from '../controllers/orderController.js';
 const router = Router();
 const controller = new OrderController();
 
-// URL = POST /api/orders, header: {authorization}
+// URL = GET /api/orders, header: {authorization}
 router.get('/',
     authMiddleware.checkUserStrict,
     validateMiddleware.users.isAdmin,

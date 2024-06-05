@@ -1,4 +1,4 @@
-# GET - /api/about   "SE ÖVER ERROR MEDDELANDET(FÅR INGET)"
+# GET - /api/about
 
 
 * ### Specifik information om företaget/kaffet
@@ -14,8 +14,8 @@
 ## Errors
 ``` 
 	"success": false,
-	"message": "Failed to insert info",
-	"status": 500
+	"message": "Bad credentials: No info found for about page.",
+	"status": 400
 	
 ```
 

@@ -245,11 +245,48 @@ const validate = {
     },
 
     navigation: async (req, res, next) => {
-        const navigationItems = await navigationDb.find();
+        let navigationItems = await navigationDb.find();
 
+        if (navigationItems.length <= 0){
+            const defaultData = [
+                {
+                    title: 'Meny',
+                    url: '/menu',
+                    isAdmin: false
+                },
+                {
+                    title: 'Vårt kaffe',
+                    url: '/about',
+                    isAdmin: false
+                },
+                {
+                    title: 'Min profil',
+                    url: '/profile',
+                    isAdmin: false
+                },
+                {
+                    title: 'Orderstatus',
+                    url: '/status',
+                    isAdmin: false
+                }
+            ];
+            await navigationDb.insert(defaultData);
+            navigationItems = defaultData;
+        }
         req.navigationItems = navigationItems;
         next();
-    }
+    },
+    about: async (req, res, next) => {
+        const textInfo = await aboutDb.findOne({ _id: 'zCGcKgM2UNsUfG6T' });
+
+        if(!textInfo){
+            error.message = `Bad credentials: No info found for about page.`;
+            error.status = 400;
+            return next(error);
+        }
+        req.textInfo = textInfo;
+        next();
+    } 
 }
 
 export default validate;

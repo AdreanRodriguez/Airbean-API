@@ -2,12 +2,12 @@ import nedb from 'nedb-promises';
 import Joi from 'joi';
 
 const productSchema = Joi.object({
-    id : Joi.number().required(),
-    title : Joi.string().max(30).required(),
-    desc : Joi.string().max(30).required(),
-    price : Joi.number().positive().required(),
-    estimatedTimeInMinutes : Joi.number().positive().required(),
-    _id : Joi.string().max(30)
+    _id: Joi.string().max(30),
+    id: Joi.number().required(),
+    desc: Joi.string().max(30).required(),
+    title: Joi.string().max(30).required(),
+    price: Joi.number().positive().required(),
+    estimatedTimeInMinutes: Joi.number().positive().required(),
 });
 
 export default productSchema;

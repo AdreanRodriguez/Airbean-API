@@ -1,5 +1,5 @@
-import { userDb } from './userModel.js';
 import nedb from 'nedb-promises';
+import { userDb } from './userModel.js';
 
 export const orderDb = nedb.create({
     filename: 'config/orders.db',
