@@ -1,18 +1,7 @@
 import { orderDb } from '../models/orderModel.js';
 export default class OrderController {
 
-    getOrders = async (req, res) => {
-        const data = await orderDb.find({});
-
-        res.json({
-            message: 'working',
-            data: data
-        });
-
-    }
-
-
-    getOrder = (req, res) => {
+    getOrderById = (req, res) => {
         res.json({
             success: true,
             message: 'Order found.',
@@ -22,33 +11,18 @@ export default class OrderController {
     }
 
     placeOrder = async (req, res, next) => {
-        const { order, user } = req;
+        const { order } = req;
 
-        if (user) {
-
-            if (!order.userId || order.userId === '') {
-                order.userId = user.userId;
-            }
-
-            if (order.userId !== user.userId) {
-                return next(new Error('Wrong userId for order.'));
-            }
-        }
-        if (order.userId !== '' && !user) return next(new Error('Wrong userId for order.'));
-        if (order.orderIsPlaced) return next(new Error('Order already placed.'));
-
-        const placedOrderTime = new Date();
-        order.orderPlacedAt = placedOrderTime.toLocaleString();
+        order.orderPlacedAt = new Date();
         order.orderIsPlaced = true;
 
-        let amountOfCups = 0;
-
+        let combinedEstimatedTimeInMinutes = 0;
         for (const item of order.products) {
-            amountOfCups += item.amount;
+            combinedEstimatedTimeInMinutes += item.product.estimatedTimeInMinutes * item.amount;
         }
-        order.estimatedTimeInMinutes = new Date();
 
-        order.estimatedTimeInMinutes = 5 + (amountOfCups * .3);
+        combinedEstimatedTimeInMinutes = combinedEstimatedTimeInMinutes;
+        order.estimatedTimeInMinutes = Math.min(10 + (combinedEstimatedTimeInMinutes), 30);
 
         await this.update(order);
 
@@ -62,19 +36,13 @@ export default class OrderController {
     }
 
     addProduct = async (req, res) => {
-        const { order, product, user } = req;
-        if (user) {
-            if (order.userId === '') {
-                order.userId = user.userId
-            }
-            if (order.userId !== user.userId) return next(new Error('Wrong userId for order.'));
-        }
+        const { order, product } = req;
 
         let { amount } = req.body;
         amount = !amount || amount <= 0 ? 1 : amount;
         const index = order.products.findIndex(item => item.product._id === product._id)
 
-        order.totalAmount += product.price * amount;
+        order.totalPrice += product.price * amount;
 
         if (index === -1) {
             order.products.unshift({
@@ -90,38 +58,33 @@ export default class OrderController {
         return res.status(200)
             .json({
                 success: true,
-                message: 'product successfully added to order. Dont forget to add "orderId" inside body.',
+                message: 'Product successfully added to order. Dont forget to add "orderId" inside body if this is a guest.',
                 status: 200,
                 order: order,
                 addedProduct: product
             });
-
     };
 
     removeProduct = async (req, res) => {
-        const { order, product, user } = req;
-        if (user) {
-            if (order.userId === '') {
-                order.userId = user.userId
-            }
-            if (order.userId !== user.userId) return next(new Error('Wrong userId for order.'));
-        }
-
-
+        const { order, product } = req;
 
         let { amount } = req.body;
-        amount = !amount || amount <= 0 ? 1 : amount;
 
         const index = order.products.findIndex(item => item.product._id === product._id)
-        order.totalAmount -= product.price * amount;
+        amount = Math.min(Math.max(amount, 1), order.products[index].amount)
+        order.totalPrice -= product.price * amount; //Korrigerar priset
 
         if (order.products[index].amount <= amount) {
-            order.products.splice(index, 1);
+            order.products.splice(index, 1); //Tar bort produkten om det inte finns några fler varor kvar av den.
+            if(order.products.length === 0){
+                await orderDb.removeOne({orderId: order.orderId});
+            }
+
         }
         else {
-            order.products[index].amount -= amount;
+            order.products[index].amount -= amount; //Tar bort mängden varor från korgen.
+            await this.update(order);
         }
-        await this.update(order);
         return res.status(200)
             .json({
                 success: true,
@@ -130,23 +93,20 @@ export default class OrderController {
                 order: order,
                 removedProduct: product
             });
-
     };
 
     getEstimatedTimeLeft = async (req, res) => {
         const { order } = req;
         const now = new Date();
-        const orderPlacedAt = new Date(order.orderPlacedAt);
+        const orderPlacedAt = new Date(order.orderPlacedAt); //Detta görs för att få en riktig Date variabel att använda när man placerade ordern.
         const elapsedTime = (now - orderPlacedAt);
-        console.log(elapsedTime);
-        let remainingTime = (order.estimatedTimeInMinutes*60000) - elapsedTime; // Återstående tid i millisekunder
+        let remainingTime = (order.estimatedTimeInMinutes * 60000) - elapsedTime; // Återstående tid i millisekunder
 
         // Om återstående tid är negativ, sätt den till noll
         if (remainingTime < 0) {
-            remainingTime = 0;
             return res.json({
                 success: true,
-                message: 'Kaffet ska ha levererats nu, enligt vårt supersäkra system!',
+                message: 'Kaffet ska ha levererats nu, enligt vårt supersäkra system! Coolt va?',
                 status: 200,
             });
         }
@@ -154,17 +114,37 @@ export default class OrderController {
         // Omvandla återstående tid till minuter och sekunder
         const minutes = Math.floor(remainingTime / (1000 * 60));
         const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-    
-        res.json({ 
+
+        res.json({
             success: true,
-            message: `Uppskattad återstående tid: ${minutes} minuter och ${seconds} sekunder`,
+            message: `Uppskattad återstående tid: ${minutes} minuter och ${seconds} sekunder.`,
             time: {
                 minutes: minutes,
                 seconds: seconds
             },
             status: 200,
         });
-    }
+    };
+
+
+    getHistoryByUserId = async (req, res) => {
+        res.json({
+            success: true,
+            message: 'Orders found.',
+            status: 200,
+            orders: req.orders
+        })
+    };
+
+    getAllHistory = async (req, res) => {
+        res.json({
+            success: true,
+            message: 'Orders found.',
+            status: 200,
+            orders: req.orders
+        })
+    };
+
 
     async update(order) {
         try {
@@ -176,11 +156,10 @@ export default class OrderController {
                         $set: {
                             userId: order.userId,
                             products: order.products,
-                            totalAmount: order.totalAmount,
+                            totalPrice: order.totalPrice,
                             orderPlacedAt: order.orderPlacedAt,
                             estimatedTimeInMinutes: order.estimatedTimeInMinutes,
                             orderIsPlaced: order.orderIsPlaced
-
                         }
                     }
                 );
@@ -192,4 +171,5 @@ export default class OrderController {
         }
     }
 }
+
 
