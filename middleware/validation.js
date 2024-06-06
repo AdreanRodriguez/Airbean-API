@@ -3,6 +3,7 @@ import { productDb } from '../models/productModel.js';
 import Order, { orderDb } from '../models/orderModel.js';
 import { navigationDb } from '../models/navigationModel.js';
 import { userDb, userSchema, loginSchema } from '../models/userModel.js';
+import { aboutDb } from '../controllers/aboutController.js';
 
 const SECRET_KEY = process.env.SECRET_KEY || "a59be5d7-0753-4d62-b665-e62d62a63c5b";
 

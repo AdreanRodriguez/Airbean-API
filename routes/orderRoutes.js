@@ -23,7 +23,7 @@ router.get('/history',
 
 // URL = GET /api/orders/history, header: {authorization}
 router.get('/:orderId',
-    validateMiddleware.orders.one,
+    validateMiddleware.orders.oneStrict,
     controller.getOrderById);
 
 // URL = GET /api/orders/:orderId/place, header: {authorization}
