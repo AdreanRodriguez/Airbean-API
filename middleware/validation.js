@@ -34,6 +34,11 @@ const validate = {
             }
             else {
                 orderToReturn = await orderDb.findOne({ orderId: orderId, orderIsPlaced: false });
+                if(!orderToReturn){
+                    error.message = 'Order not found';
+                    error.status = 404;
+                    return next(error);
+                }
             }
 
             req.order = orderToReturn;
@@ -56,7 +61,7 @@ const validate = {
                 }
             }
 
-            const order = await orderDb.findOne({ orderId: orderId || orderIdViaParams });
+            const order = await orderDb.findOne({ orderId: orderId });
 
             if (!order) {
                 error.message = 'Order is not found';
@@ -100,8 +105,17 @@ const validate = {
         },
 
         isOrderPlaced: async (req, res, next) => {
-            if (order.orderIsPlaced) {
+            if (req.order.orderIsPlaced) {
                 error.message = 'Unauthorized access: Order already placed.';
+                error.status = 400;
+                return next(error);
+            }
+            next();
+
+        },
+        isOrderNotPlaced: async (req, res, next) => {
+            if (!req.order.orderIsPlaced) {
+                error.message = 'Unauthorized access: Order not placed yet.';
                 error.status = 400;
                 return next(error);
             }
@@ -164,9 +178,8 @@ const validate = {
 
     users: {
         register: async (req, res, next) => {
-            const { joiError } = userSchema.validate(req.body);
-
-            if (joiError) {
+            const { error } = userSchema.validate(req.body);
+            if (error) {
                 error.message = error.details[0].message;
                 error.status = 400;
                 return next(error);
@@ -180,14 +193,16 @@ const validate = {
             }
 
             if (await userDb.findOne({ username: username })) {
+                const error = new Error()
                 error.message = 'Username already taken.';
                 error.status = 401;
                 return next(error);
             }
 
             next();
-        },
-
+},
+ 
+        
         login: async (req, res, next) => {
             const { joiError } = loginSchema.validate(req.body);
             const { username, password } = req.body;

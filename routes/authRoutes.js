@@ -27,9 +27,4 @@ router.get('/users/:userId',
     controller.getUser);
 
 
-
-
-
-
-
 export default router;

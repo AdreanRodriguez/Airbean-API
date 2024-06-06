@@ -39,6 +39,7 @@ router.get('/:orderId/estimatedTimeLeft',
     validateMiddleware.orders.oneStrict,
     authMiddleware.checkUser,
     validateMiddleware.orders.userIdInsideOrder,
+    validateMiddleware.orders.isOrderNotPlaced,
     controller.getEstimatedTimeLeft);
 
 // Hämtar den varukorg som användaren har aktiv. 

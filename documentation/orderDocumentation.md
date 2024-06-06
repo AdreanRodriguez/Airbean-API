@@ -93,7 +93,7 @@ Lägger till en produkt i användarens aktiva beställning.
 >* `orderId` får du efter första varan är lagd i kundkorgen.
 >* `amount` är valfri att ha med. 
 >>* Om `amount` inte finns med som parameter:  `amount = 1`
->>* Om `amount` har ett negativt, eller 0, som värde: `amount = 1`  
+>>* Om `amount` har ett negativt, eller 0, som värde: `amount = 1`
 
 ### Middleware
 * [checkUser](https://github.com/AdreanRodriguez/Aribean-API/blob/10-orderHistory/middleware/authentication.js#L22)

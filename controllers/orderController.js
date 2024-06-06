@@ -36,7 +36,7 @@ export default class OrderController {
     }
 
     addProduct = async (req, res) => {
-        const { order, product} = req;
+        const { order, product } = req;
 
         let { amount } = req.body;
         amount = !amount || amount <= 0 ? 1 : amount;
@@ -66,7 +66,7 @@ export default class OrderController {
     };
 
     removeProduct = async (req, res) => {
-        const { order, product} = req;
+        const { order, product } = req;
 
         let { amount } = req.body;
 
@@ -76,11 +76,15 @@ export default class OrderController {
 
         if (order.products[index].amount <= amount) {
             order.products.splice(index, 1); //Tar bort produkten om det inte finns några fler varor kvar av den.
+            if(order.products.length === 0){
+                await orderDb.removeOne({orderId: order.orderId});
+            }
+
         }
         else {
             order.products[index].amount -= amount; //Tar bort mängden varor från korgen.
+            await this.update(order);
         }
-        await this.update(order);
         return res.status(200)
             .json({
                 success: true,
@@ -96,11 +100,10 @@ export default class OrderController {
         const now = new Date();
         const orderPlacedAt = new Date(order.orderPlacedAt); //Detta görs för att få en riktig Date variabel att använda när man placerade ordern.
         const elapsedTime = (now - orderPlacedAt);
-        let remainingTime = (order.estimatedTimeInMinutes*60000) - elapsedTime; // Återstående tid i millisekunder
+        let remainingTime = (order.estimatedTimeInMinutes * 60000) - elapsedTime; // Återstående tid i millisekunder
 
         // Om återstående tid är negativ, sätt den till noll
         if (remainingTime < 0) {
-            remainingTime = 0;
             return res.json({
                 success: true,
                 message: 'Kaffet ska ha levererats nu, enligt vårt supersäkra system! Coolt va?',
@@ -111,8 +114,8 @@ export default class OrderController {
         // Omvandla återstående tid till minuter och sekunder
         const minutes = Math.floor(remainingTime / (1000 * 60));
         const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-    
-        res.json({ 
+
+        res.json({
             success: true,
             message: `Uppskattad återstående tid: ${minutes} minuter och ${seconds} sekunder.`,
             time: {
@@ -122,6 +125,7 @@ export default class OrderController {
             status: 200,
         });
     };
+
 
     getHistoryByUserId = async (req, res) => {
         res.json({
@@ -140,7 +144,7 @@ export default class OrderController {
             orders: req.orders
         })
     };
-    
+
 
     async update(order) {
         try {
@@ -156,7 +160,6 @@ export default class OrderController {
                             orderPlacedAt: order.orderPlacedAt,
                             estimatedTimeInMinutes: order.estimatedTimeInMinutes,
                             orderIsPlaced: order.orderIsPlaced
-
                         }
                     }
                 );
@@ -168,4 +171,5 @@ export default class OrderController {
         }
     }
 }
+
 
