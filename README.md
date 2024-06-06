@@ -10,3 +10,6 @@
 ## Extra utmaning (valfritt)
 * Användare ska kunna få kampanjerbjudanden på olika kombinationer för att få ett billigare pris. 
 * Projektet använder sig av en MVC-arkitektur.
+
+
+![image](https://github.com/AdreanRodriguez/Airbean-API/assets/143543945/5ccedb49-efe4-465e-ab77-cc3b419deb6d)
