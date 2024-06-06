@@ -1,0 +1,3 @@
+{"username":"Morgan","password":"lösenord","userId":"RO6LL","email":"morgan@olaconny.se","firstName":"Morgan","lastName":"Morgansson","address":"Bananskalsvägen 40, 50505 Göteborg","isAdmin":true,"_id":"3wzAzlIUg0WqhOzt"}
+{"username":"Jerker","password":"password","userId":"7XPXV","email":"nisse@lasse.se","firstName":"Johan","lastName":"Jaerker","address":"Knektvägen 21, 68631 Sunne","isAdmin":false,"_id":"Q6dYoCOaMQHlnO61"}
+{"username":"Johan","password":"password","userId":"UFNCD","email":"nisse@lasse.se","firstName":"Johan","lastName":"Jaerker","address":"Knektvägen 21, 68631 Sunne","isAdmin":false,"_id":"xVl8eZCjlXhJYDaV"}
