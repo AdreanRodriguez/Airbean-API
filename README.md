@@ -13,3 +13,4 @@
 
 
 ![image](https://github.com/AdreanRodriguez/Airbean-API/assets/143543945/5ccedb49-efe4-465e-ab77-cc3b419deb6d)
+# Airbean-API-individuella
