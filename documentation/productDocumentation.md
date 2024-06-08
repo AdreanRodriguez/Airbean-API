@@ -17,7 +17,7 @@
 ```
 <hr><br><br>
 
-# GET - /api/products/
+# GET - /api/products/:productId
 *Fetches a specific product by its ID.*
 ## Returns
 * Successful Response
