@@ -7,7 +7,7 @@ import { aboutDb } from '../controllers/aboutController.js';
 
 const SECRET_KEY = process.env.SECRET_KEY || "a59be5d7-0753-4d62-b665-e62d62a63c5b";
 
-const error = new Error();
+const validationError = new Error();
 
 const validate = {
     //ORDRAR
@@ -36,9 +36,9 @@ const validate = {
             else {
                 orderToReturn = await orderDb.findOne({ orderId: orderId, orderIsPlaced: false });
                 if(!orderToReturn){
-                    error.message = 'Order not found';
-                    error.status = 404;
-                    return next(error);
+                    validationError.message = 'Order not found';
+                    validationError.status = 404;
+                    return next(validationError);
                 }
             }
 
@@ -56,25 +56,25 @@ const validate = {
                     orderId = req.params.orderId;
                 }
                 else {
-                    error.message = 'orderId parameter is not found';
-                    error.status = 404;
-                    return next(error);
+                    validationError.message = 'orderId parameter is not found';
+                    validationError.status = 404;
+                    return next(validationError);
                 }
             }
 
             const order = await orderDb.findOne({ orderId: orderId });
 
             if (!order) {
-                error.message = 'Order is not found';
-                error.status = 404;
-                return next(error);
+                validationError.message = 'Order is not found';
+                validationError.status = 404;
+                return next(validationError);
             }
 
             if (req.method === 'DELETE' && order.products.findIndex(item => item.product._id === productId) === -1) {
 
-                error.message = `Product with ID ${productId} does not exist in order`;
-                error.status = 404;
-                return next(error);
+                validationError.message = `Product with ID ${productId} does not exist in order`;
+                validationError.status = 404;
+                return next(validationError);
             }
 
             req.order = order;
@@ -85,9 +85,9 @@ const validate = {
             const orders = await orderDb.find();
 
             if (orders.length < 0) {
-                error.message = 'No orders found'
-                error.status = 404
-                return next(error);
+                validationError.message = 'No orders found'
+                validationError.status = 404
+                return next(validationError);
             }
             req.orders = orders;
             next();
@@ -97,9 +97,9 @@ const validate = {
             const orders = await orderDb.find({ userId: req.user.userId }).sort({ orderPlacedAt: 1 });
 
             if (orders.length < 0) {
-                error.message = 'No orders found'
-                error.status = 404
-                return next(error);
+                validationError.message = 'No orders found'
+                validationError.status = 404
+                return next(validationError);
             }
             req.orders = orders;
             next();
@@ -107,18 +107,18 @@ const validate = {
 
         isOrderPlaced: async (req, res, next) => {
             if (req.order.orderIsPlaced) {
-                error.message = 'Unauthorized access: Order already placed.';
-                error.status = 400;
-                return next(error);
+                validationError.message = 'Unauthorized access: Order already placed.';
+                validationError.status = 400;
+                return next(validationError);
             }
             next();
 
         },
         isOrderNotPlaced: async (req, res, next) => {
             if (!req.order.orderIsPlaced) {
-                error.message = 'Unauthorized access: Order not placed yet.';
-                error.status = 400;
-                return next(error);
+                validationError.message = 'Unauthorized access: Order not placed yet.';
+                validationError.status = 400;
+                return next(validationError);
             }
             next();
 
@@ -128,9 +128,9 @@ const validate = {
             if (user) {
                 if (order.userId !== '') {
                     if (order.userId !== user.userId) {
-                        error.message = 'Unauthorized access: User ID is not the same as the one inside order.';
-                        error.status = 400;
-                        return next(error);
+                        validationError.message = 'Unauthorized access: User ID is not the same as the one inside order.';
+                        validationError.status = 400;
+                        return next(validationError);
                     }
                 }
                 else {
@@ -146,17 +146,17 @@ const validate = {
             const { productId } = req.params;
 
             if (!productId) {
-                error.message = 'No ID found.';
-                error.status = 404;
-                return next(error);
+                validationError.message = 'No ID found.';
+                validationError.status = 404;
+                return next(validationError);
             }
 
             const product = await productDb.findOne({ _id: productId });
 
             if (!product) {
-                error.message = 'Product not found.';
-                error.status = 404;
-                return next(error);
+                validationError.message = 'Product not found.';
+                validationError.status = 404;
+                return next(validationError);
             }
 
             //req.product kan användas  
@@ -167,9 +167,9 @@ const validate = {
         many: async (req, res, next) => {
             const products = await productDb.find().sort({ id: 1 });
             if (!products || products.length <= 0) {
-                error.message = 'Products not found.';
-                error.status = 400;
-                return next(error);
+                validationError.message = 'Products not found.';
+                validationError.status = 400;
+                return next(validationError);
             }
             req.products = products;
             next();
@@ -181,23 +181,22 @@ const validate = {
         register: async (req, res, next) => {
             const { error } = userSchema.validate(req.body);
             if (error) {
-                error.message = error.details[0].message;
-                error.status = 400;
-                return next(error);
+                validationError.message = error.details[0].message;
+                validationError.status = 400;
+                return next(validationError);
             }
 
             const { username, password, validatePassword } = req.body;
             if (password !== validatePassword) {
-                error.message = 'Passwords are not equal.';
-                error.status = 401;
-                return next(error);
+                validationError.message = 'Passwords are not equal.';
+                validationError.status = 401;
+                return next(validationError);
             }
 
             if (await userDb.findOne({ username: username })) {
-                const error = new Error()
-                error.message = 'Username already taken.';
-                error.status = 401;
-                return next(error);
+                validationError.message = 'Username already taken.';
+                validationError.status = 401;
+                return next(validationError);
             }
 
             next();
@@ -205,21 +204,21 @@ const validate = {
  
         
         login: async (req, res, next) => {
-            const { joiError } = loginSchema.validate(req.body);
+            const { error } = loginSchema.validate(req.body);
             const { username, password } = req.body;
 
-            if (joiError) {
-                error.message = error.details[0].message;
-                error.status = 400;
-                return next(error);
+            if (error) {
+                validationError.message = error.details[0].message;
+                validationError.status = 400;
+                return next(validationError);
             }
 
             const user = await userDb.findOne({ username: username, password: password });
 
             if (!user) {
-                error.message = 'Bad credentials: Wrong username or password.';
-                error.status = 400;
-                return next(error);
+                validationError.message = 'Bad credentials: Wrong username or password.';
+                validationError.status = 400;
+                return next(validationError);
             }
 
             const token = jwt.sign(user, SECRET_KEY);
@@ -231,9 +230,9 @@ const validate = {
         isAdmin: async (req, res, next) => {
 
             if (!req.user?.isAdmin) {
-                error.message = 'Unauthorized access: User not Admin.';
-                error.status = 400;
-                return next(error);
+                validationError.message = 'Unauthorized access: User not Admin.';
+                validationError.status = 400;
+                return next(validationError);
             }
             next();
         },
@@ -242,16 +241,16 @@ const validate = {
             const { userId } = req.params;
 
             if (!userId) {
-                error.message = 'Bad credentials: no userId in parameter.';
-                error.status = 400;
-                return next(error);
+                validationError.message = 'Bad credentials: no userId in parameter.';
+                validationError.status = 400;
+                return next(validationError);
             }
             const searchedUser = await userDb.findOne({ userId: userId });
 
             if (!searchedUser) {
-                error.message = `Bad credentials: no user with userId ${userId}.`;
-                error.status = 400;
-                return next(error);
+                validationError.message = `Bad credentials: no user with userId ${userId}.`;
+                validationError.status = 400;
+                return next(validationError);
             }
             //Ta bort lösenordet från användarens uppgifter
             delete searchedUser.password;
@@ -296,9 +295,9 @@ const validate = {
         const textInfo = await aboutDb.findOne({ _id: 'zCGcKgM2UNsUfG6T' });
 
         if(!textInfo){
-            error.message = `Bad credentials: No info found for about page.`;
-            error.status = 400;
-            return next(error);
+            validationError.message = `Bad credentials: No info found for about page.`;
+            validationError.status = 400;
+            return next(validationError);
         }
         req.textInfo = textInfo;
         next();
